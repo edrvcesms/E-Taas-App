@@ -1,5 +1,7 @@
 from passlib.context import CryptContext
 from jwt import encode, decode, PyJWTError
+from firebase_admin import auth as firebase_auth
+from firebase_admin._auth_utils import InvalidIdTokenError, ExpiredIdTokenError
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -32,3 +34,15 @@ def is_token_valid(token: str, secret_key: str, algorithms: list) -> bool:
         return True
     except PyJWTError:
         return False
+
+
+# For firebase
+
+def verify_firebase_token(id_token: str) -> dict:
+    """Verify a Firebase ID token."""
+    try:
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        return decoded_token
+    except (InvalidIdTokenError, ExpiredIdTokenError):
+        return None
+    
