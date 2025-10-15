@@ -1,6 +1,6 @@
 venv
 __pycache__/
 etaas.db
-.firebaseServiceAccountKey.json
+firebaseServiceAccountKey.json
 *.pyc
 .env
