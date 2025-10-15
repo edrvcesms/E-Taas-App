@@ -10,4 +10,4 @@ passlib
 psycopg2-binary
 pydantic[email]
 bcrypt==4.0.1
-firebase-admin
+firebase-admin ==6.1.0

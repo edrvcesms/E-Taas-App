@@ -1,13 +1,11 @@
 from passlib.context import CryptContext
 from jwt import encode, decode, PyJWTError
-from firebase_admin import auth as firebase_auth
-from firebase_admin._auth_utils import InvalidIdTokenError, ExpiredIdTokenError
-
+from firebase_admin import auth
+from firebase_admin.auth import InvalidIdTokenError, ExpiredIdTokenError
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     """Hash a plaintext password (safely truncated for bcrypt)."""
-    # bcrypt only supports up to 72 bytes — truncate safely
     truncated = password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
     return pwd_context.hash(truncated)
 
@@ -41,8 +39,8 @@ def is_token_valid(token: str, secret_key: str, algorithms: list) -> bool:
 def verify_firebase_token(id_token: str) -> dict:
     """Verify a Firebase ID token."""
     try:
-        decoded_token = firebase_auth.verify_id_token(id_token)
+        decoded_token = auth.verify_id_token(id_token)
         return decoded_token
-    except (InvalidIdTokenError, ExpiredIdTokenError):
+    except exceptions.FirebaseError:
         return None
     

@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, Header
 from core.security import verify_firebase_token, is_token_valid, decode_access_token
 from core.config import settings
 
-def get_current_user(token: str = Header(...)):
+def current_user(token: str = Header(...)):
 
     token = token.replace("Bearer ", "")
 
