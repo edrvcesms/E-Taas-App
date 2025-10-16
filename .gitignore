@@ -4,3 +4,4 @@ etaas.db
 firebaseServiceAccountKey.json
 *.pyc
 .env
+test_token.html
