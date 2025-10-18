@@ -24,7 +24,10 @@ class UserResponse(BaseModel):
     middle_name: Optional[str]
     last_name: Optional[str]
     birth_date: Optional[datetime]
-    role: str
+    is_seller: bool
+    is_admin: bool
+    address: Optional[str]
+    contact_number: Optional[str]
     is_active: bool
     created_at: Optional[datetime]
     updated_at: Optional[datetime]

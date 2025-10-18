@@ -4,7 +4,7 @@ load_dotenv()
 from fastapi import FastAPI
 from db.database import engine, Base, get_db
 from models import *
-from routers import auth, users, products, cart, orders
+from routers import auth, users, products, cart, orders, admin
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -29,3 +29,4 @@ app.include_router(users.router)
 app.include_router(products.router)
 app.include_router(cart.router)
 app.include_router(orders.router)
+app.include_router(admin.router)

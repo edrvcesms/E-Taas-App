@@ -1,23 +1,35 @@
+from cloudinary_config import cloudinary
+import cloudinary.uploader
 from models import Product
 from sqlalchemy.orm import Session
 from datetime import datetime
-from schemas.products import ProductCreate, ProductUpdate
+from models.products import ProductImages
 
-def create_product(product: dict, db: Session):
+
+def create_product(product: dict, images: list, db: Session):
     new_product = Product(
         product_name=product["product_name"],
         price=product["price"],
         description=product.get("description"),
         stock=product.get("stock", 0),
-        image_url=product.get("image_url"),
         category_id=product["category_id"],
-        seller_id=product["seller_id"], 
+        seller_id=product["seller_id"],
         created_at=datetime.utcnow()
     )
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
+
+    for image in images:
+        upload_result = cloudinary.uploader.upload(image.file)
+        print("Cloudinary Config:", cloudinary.config())
+        image_url = upload_result["secure_url"]
+        db.add(ProductImages(product_id=new_product.id, image_url=image_url))
+
+    db.commit()
+    db.refresh(new_product)
     return new_product
+
 
 def get_all_product(db: Session, limit = 100):
     return db.query(Product).limit(limit=limit).all()
@@ -45,7 +57,7 @@ def delete_product(product_id: int, db: Session):
             return None
         db.delete(product)
         db.commit()
-        return {"Success": "Deletion of account successful"}
+        return {"Success": "Deletion of product successful"}
     except:
         return {"Error", "Something went wrong on deletion"}
     

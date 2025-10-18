@@ -13,7 +13,7 @@ def checkout_order(db: Session, user_id: int, order_data: OrderCreate) -> Order:
 
     new_order = Order(
         user_id=user_id,
-        total_amount=0, # Will be updated later
+        total_amount=0, 
         delivery_address=order_data.delivery_address,
         payment_method=order_data.payment_method,
         contact_number=order_data.contact_number
@@ -69,3 +69,14 @@ def get_order_by_id(db: Session, order_id: int, user_id: int) -> Order:
 def get_orders_by_user(db: Session, user_id: int) -> list[Order]:
     orders = db.query(Order).options(joinedload(Order.details)).filter(Order.user_id == user_id).all()
     return orders
+
+def cancel_order(db: Session, order_id: int, status: str) -> Order:
+    order = db.query(Order).filter(Order.id == order_id)
+
+    if not order.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    
+    order.update({"order_status": status})
+    db.commit()
+    return order.first()
+

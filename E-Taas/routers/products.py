@@ -1,11 +1,13 @@
 from services.products import create_product, update_product, delete_product, get_all_product, get_product_by_id
 from models.products import Product
 from models.users import User
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, Form
+from typing import List
+from fastapi import File
 from db.database import get_db
 from core.config import settings
 from sqlalchemy.orm import Session
-from schemas.products import ProductCreate, ProductResponse, ProductUpdate
+from schemas.products import ProductResponse, ProductUpdate
 from dependencies.auth import current_user
 
 
@@ -25,22 +27,30 @@ def get_product_with_id(product_id: int, db: Session = Depends(get_db), user: Us
     return get_product_by_id(product_id=product_id, db=db)
 
 @router.post("/add", response_model = ProductResponse)
-def add_product(product: ProductCreate, db: Session = Depends(get_db), user: User = Depends(current_user)):
+def add_product(
+    product_name: str = Form(),
+    price: float = Form(),
+    description: str = Form(None),
+    stock: int = Form(0),
+    category_id: int = Form(),
+    images: List[UploadFile] = File(),
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user)
+    ):
 
-    if user.role != "seller":
+    if not user.is_seller:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only sellers can add products")
     
     product_data = {
-        "product_name": product.product_name,
-        "price": product.price,
-        "description": product.description,
-        "stock": product.stock,
-        "image_url": product.image_url,
-        "category_id": product.category_id,
+        "product_name": product_name,
+        "price": price,
+        "description": description,
+        "stock": stock,
+        "category_id": category_id,
         "seller_id": user.id, 
     }
 
-    return create_product(product=product_data, db=db)
+    return create_product(product_data, images, db)
 
 @router.put("/update", response_model=ProductResponse)
 def product_update(product_id: int, product_update: ProductUpdate, db: Session = Depends(get_db), user: User = Depends(current_user)):
@@ -49,7 +59,7 @@ def product_update(product_id: int, product_update: ProductUpdate, db: Session =
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
-    if user.role != "seller":
+    if not user.is_seller:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only sellers can update products")
     
     if product.seller_id != user.id:
@@ -62,12 +72,12 @@ def product_update(product_id: int, product_update: ProductUpdate, db: Session =
 
 @router.delete("/delete/{id}")
 def product_delete(product_id: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if user.role != "seller":
+    if not user.is_seller:
         raise HTTPException(status_code=403, detail="Only sellers can delete products")
     
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     
-    return delete_product(product_id=product_id, db=db)
+    return delete_product(product_id, db)
     
