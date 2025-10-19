@@ -25,5 +25,8 @@ class User(Base):
     products = relationship("Product", back_populates="seller")
     cart = relationship("Cart", back_populates="user", uselist=False)
     orders = relationship("Order", back_populates="user")
+    user_notifications = relationship("UserNotification", back_populates="user")
+    seller_notifications = relationship("SellerNotification", back_populates="seller")
+
 
 

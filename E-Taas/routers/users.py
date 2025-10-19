@@ -32,3 +32,4 @@ def delete_user(db: Session = Depends(get_db), user: User = Depends(current_user
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return delete_user_account(user.id, db)
 
+

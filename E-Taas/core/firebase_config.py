@@ -11,7 +11,11 @@ if not firebase_admin._apps:
 
 def verify_firebase_token(id_token: str) -> dict | None:
     try:
-        return auth.verify_id_token(id_token)
+        decoded_token = auth.verify_id_token(id_token)
+        return {
+            "email": decoded_token["email"],
+            "uid": decoded_token["uid"],
+        }
     except exceptions.FirebaseError as e:
         print("Firebase verification failed:", e)
         return None

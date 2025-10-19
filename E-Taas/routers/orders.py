@@ -13,8 +13,8 @@ router = APIRouter(
 )
 
 @router.post("/checkout", status_code=status.HTTP_201_CREATED, response_model=OrderSchema)
-def checkout(order: OrderCreate, db: Session = Depends(get_db), user: user_model.User = Depends(current_user)):
-    return checkout_order(db, user.id, order)
+async def checkout(order: OrderCreate, db: Session = Depends(get_db), user: user_model.User = Depends(current_user)):
+    return await checkout_order(db, user.id, order)
 
 @router.get("/", response_model=List[OrderSchema])
 def get_all_orders(db: Session = Depends(get_db), user: user_model.User = Depends(current_user)):
@@ -27,4 +27,3 @@ def get_single_order(order_id: int, db: Session = Depends(get_db), user: user_mo
 @router.put("/{order_id}/cancel", response_model=OrderSchema)
 def cancel_user_order(order_id: int, db: Session = Depends(get_db), user: user_model.User = Depends(current_user)):
     return cancel_order(db, order_id, "cancelled")
-                        

@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException, Header
-from core.security import is_token_valid, decode_access_token
+from core.security import is_token_valid, decode_token
 from core.firebase_config import verify_firebase_token
 from core.config import settings
 from models.users import User
@@ -27,7 +27,7 @@ def current_user(
         print("Firebase error:", e)
 
     try:
-        jwt_user = decode_access_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
+        jwt_user = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
         if jwt_user and is_token_valid(token, settings.SECRET_KEY, [settings.ALGORITHM]):
             user = db.query(User).filter(User.id == jwt_user["user_id"]).first()
             if not user:

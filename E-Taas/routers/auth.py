@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,status
+from fastapi.responses import JSONResponse as Response
 from sqlalchemy.orm import Session
 from services.auth import register_user, login_user
 from db.database import get_db
@@ -11,18 +12,14 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     """Register a new user."""
-    new_user, error = register_user(user, db)
-    if error:
-        raise HTTPException(status_code=400, detail=error)
+    new_user = register_user(user, db)
     return new_user
 
 
 @router.post("/login", response_model=LoginResponse)
 def login(user: LoginBase, db: Session = Depends(get_db)):
     """Authenticate a user and return a JWT token."""
-    token_data, error = login_user(user, db)
-    if error:
-        raise HTTPException(status_code=400, detail=error)
+    token_data = login_user(user, db)
     return token_data
 
 

@@ -1,4 +1,4 @@
-from cloudinary_config import cloudinary
+from core.cloudinary_config import cloudinary
 import cloudinary.uploader
 from models import Product
 from sqlalchemy.orm import Session

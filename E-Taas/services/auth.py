@@ -1,5 +1,5 @@
 from models import User
-from core.security import hash_password, create_access_token, verify_password
+from core.security import hash_password, create_access_token, verify_password, create_refresh_token
 from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -26,7 +26,7 @@ def register_user(user: UserCreate, db: Session):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user, None
+    return new_user
 
 
 def login_user(user: LoginBase, db: Session):
@@ -50,11 +50,24 @@ def login_user(user: LoginBase, db: Session):
         secret_key=settings.SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
+    refresh_token = create_refresh_token(
+        data={
+        "sub": db_user.email,
+        "user_id": db_user.id,
+        "is_seller": db_user.is_seller,
+        "is_admin": db_user.is_admin,
+        "exp": expires
+        },
+        secret_key=settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
     
     return {
+        "message": "Login successful",
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
         "expires_in": int(expires_delta.total_seconds())
-    }, None
+    }
 
 
