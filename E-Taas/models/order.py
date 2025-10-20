@@ -14,10 +14,11 @@ class Order(Base):
     contact_number = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    seller_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    user = relationship("User", back_populates="orders")
-    details = relationship("OrderDetail", back_populates="order")
-    
+    seller = relationship("User", back_populates="order_seller", foreign_keys=[seller_id])
+    user = relationship("User", back_populates="orders", foreign_keys=[user_id])
+    details = relationship("OrderDetail", back_populates="orders")
 
 class OrderDetail(Base):
     __tablename__ = "order_details"
@@ -31,5 +32,5 @@ class OrderDetail(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    order = relationship("Order", back_populates="details")
+    orders = relationship("Order", back_populates="details")
     product = relationship("Product", back_populates="order_details")

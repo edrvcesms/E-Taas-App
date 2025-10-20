@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, Depends, HTTPException
+from fastapi import APIRouter, WebSocket, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from dependencies.auth import current_user
 from db.database import get_db
@@ -40,16 +40,3 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int):
         print(f"WebSocket error: {e}")
     finally:
         manager.disconnect(websocket, user_id)
-
-@router.get("/user-notifications", response_model=List[UserNotificationResponse])
-def user_notifications(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if not user:
-        raise HTTPException(status_code=403, detail="Only logged-in users can view notifications")
-    
-    return get_user_notifications(db, user.id)
-
-@router.get("/seller-notifications", response_model=List[SellerNotificationResponse])
-def seller_notifications(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if not user.is_seller:
-        raise HTTPException(status_code=403, detail="Only sellers can view seller notifications")
-    return get_seller_notifications(db, user.id)

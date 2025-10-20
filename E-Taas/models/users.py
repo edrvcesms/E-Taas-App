@@ -22,9 +22,18 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+    
+    # if user became seller
+    shop_name = Column(String, nullable=True)
+    shop_address = Column(String, nullable=True)
+    business_permit = Column(String, nullable=True)
+    rating = Column(Float, nullable=True, default=0.0)
+
+
+    orders = relationship("Order", back_populates="user", foreign_keys="[Order.user_id]")
+    order_seller = relationship("Order", back_populates="seller", foreign_keys="[Order.seller_id]")
     products = relationship("Product", back_populates="seller")
     cart = relationship("Cart", back_populates="user", uselist=False)
-    orders = relationship("Order", back_populates="user")
     user_notifications = relationship("UserNotification", back_populates="user")
     seller_notifications = relationship("SellerNotification", back_populates="seller")
 

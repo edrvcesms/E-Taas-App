@@ -16,7 +16,7 @@ class UserNotificationResponse(NotificationBase):
 
 class SellerNotificationResponse(NotificationBase):
     id: int
-    user_id: int
+    seller_id: int
 
 class Notification(NotificationBase):
     id: int

@@ -38,6 +38,9 @@ def get_all_product(db: Session, limit = 100):
 def get_product_by_id(product_id: int, db: Session):
     return db.query(Product).filter(Product.id == product_id).first()
 
+def get_all_products_by_seller(db: Session, seller_id: int):
+    return db.query(Product).filter(Product.seller_id == seller_id).all()
+
 
 def update_product(product_id: int, update_product: dict, db: Session):
     product = db.query(Product).filter(Product.id == product_id).first()

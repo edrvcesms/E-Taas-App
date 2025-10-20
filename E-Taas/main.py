@@ -2,9 +2,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 from fastapi import FastAPI
-from db.database import engine, Base, get_db
+from db.database import engine, Base
 from models import *
-from routers import auth, users, products, cart, orders, admin, notification
+from routers import auth, users, products, cart, orders, admin, notification, sellers
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -26,6 +26,7 @@ Base.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(sellers.router)
 app.include_router(products.router)
 app.include_router(cart.router)
 app.include_router(orders.router)
