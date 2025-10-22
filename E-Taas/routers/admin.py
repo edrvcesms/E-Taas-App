@@ -1,31 +1,50 @@
-from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException, status, APIRouter
-from schemas.users import UserResponse
-from schemas.category import CreateCategory
-from db.database import get_db
-from services.admin import update_user_role, add_product_category
-from models.users import User
+from fastapi import APIRouter, Depends, status, Request, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from dependencies.database import get_db
 from dependencies.auth import current_user
+from services.admin import update_user_as_seller, add_new_category
+from schemas.users import SellerInfoUpdate, UserPublic
+from models.users import User
+from dependencies.limiter import limiter
 
+router = APIRouter(
+    prefix="/admin",
+    tags=["admin"]
+)
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+@router.post("/add-category", status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
+async def create_category(
+    request: Request,
+    category_name: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    """Add a new product category. Admin only."""
 
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to perform this action"
+        )
 
-@router.post("/add-category")
-def add_new_category(new_category:CreateCategory, db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if not user.is_admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can add categories")
-    
-    return add_product_category(db, new_category)
+    return await add_new_category(db, category_name)
 
+@router.put("/promote-to-seller/{user_id}", response_model=UserPublic)
+@limiter.limit("5/minute")
+async def promote_user_to_seller(
+    request: Request,
+    user_id: int,
+    seller_info_update: SellerInfoUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    """Promote a user to seller status. Admin only."""
 
-@router.put("/users/{user_id}/role", response_model=UserResponse)
-def update_user_as_seller(user_id: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to perform this action"
+        )
 
-    if not user.is_admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can update user roles")
-
-    return update_user_role(db, user_id)
-
-
-
+    return await update_user_as_seller(db, user_id, seller_info_update)

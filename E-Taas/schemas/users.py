@@ -1,36 +1,62 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     username: str
-    email: str
-    password: str
+    email: EmailStr
+    first_name: Optional[str] = None
+    middle_name: Optional[str] = None
+    last_name: Optional[str] = None
+    birthdate: Optional[datetime] = None
+    address: Optional[str] = None
+    contact_number: Optional[str] = None
+    is_seller: bool = False
+    is_admin: bool = False
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     middle_name: Optional[str] = None
     last_name: Optional[str] = None
+    birthdate: Optional[datetime] = None
     address: Optional[str] = None
     contact_number: Optional[str] = None
-    birth_date: Optional[datetime] = None
-    is_active: Optional[bool] = None
 
-class UserResponse(BaseModel):
+class SellerInfoUpdate(BaseModel):
+    shop_name: Optional[str] = None
+    shop_address: Optional[str] = None
+    shop_contact_number: Optional[str] = None
+    business_permit: Optional[str] = None
+
+class UserInDBBase(SellerInfoUpdate):
     id: int
-    username: str
-    email: str
-    first_name: Optional[str]
-    middle_name: Optional[str]
-    last_name: Optional[str]
-    birth_date: Optional[datetime]
-    is_seller: bool
-    is_admin: bool
-    address: Optional[str]
-    contact_number: Optional[str]
-    is_active: bool
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    rating: float
+    rating_count: int
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
+
+class User(UserBase):
+    pass
+
+class UserInDB(UserInDBBase):
+    hashed_password: str
+
+class UserPublic(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+    first_name: Optional[str] = None
+    middle_name: Optional[str] = None
+    last_name: Optional[str] = None
+    shop_name: Optional[str] = None
+    shop_address: Optional[str] = None
+    shop_contact_number: Optional[str] = None
+    is_seller: bool
+    rating: float
+
+    class Config:
+        orm_mode = True
+

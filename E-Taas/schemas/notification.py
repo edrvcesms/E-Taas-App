@@ -1,26 +1,18 @@
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
+
 class NotificationBase(BaseModel):
+    user_id: int
     message: str
     is_read: bool = False
-    created_at: datetime
 
-    class Config:
-        orm_mode = True
-
-class UserNotificationResponse(NotificationBase):
-    id: int
-    user_id: int
-
-
-class SellerNotificationResponse(NotificationBase):
-    id: int
-    seller_id: int
+class NotificationCreate(NotificationBase):
+    pass
 
 class Notification(NotificationBase):
     id: int
-    user_id: int
     created_at: datetime
 
     class Config:

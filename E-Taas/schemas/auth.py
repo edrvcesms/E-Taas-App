@@ -1,16 +1,24 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-
-class LoginBase(BaseModel):
+class UserRegister(BaseModel):
+    username: str
     email: EmailStr
     password: str
-    remember_me: bool
 
-    
-class LoginResponse(BaseModel):
-    message: str
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str
-    expires_in: int
+    token_type: str = "bearer"
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class FirebaseUser(BaseModel):
+    uid: str
+    email: EmailStr
+

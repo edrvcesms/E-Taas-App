@@ -1,39 +1,38 @@
-from fastapi import Depends, HTTPException, Header
-from core.security import is_token_valid, decode_token
-from core.firebase_config import verify_firebase_token
-from core.config import settings
-from models.users import User
-from sqlalchemy.orm import Session
-from db.database import get_db
+from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from models.users import User
+from dependencies.database import get_db
+from core.security import decode_token, is_token_valid
+from core.config import settings
+import logging
 
-
+logger = logging.getLogger(__name__)
 bearer_scheme = HTTPBearer()
 
-def current_user(
+
+async def current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ) -> User:
     token = credentials.credentials
-
+    
     try:
-        firebase_user = verify_firebase_token(token)
-        if firebase_user:
-            user = db.query(User).filter(User.email == firebase_user["email"]).first()
+        jwt_payload = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
+        if jwt_payload and is_token_valid(token, settings.SECRET_KEY, [settings.ALGORITHM]):
+            user_id = jwt_payload.get("user_id")
+            if not user_id:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+
+            result = await db.execute(
+                select(User).where(User.id == user_id)
+            )
+            user = result.scalar_one_or_none()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
             return user
     except Exception as e:
-        print("Firebase error:", e)
-
-    try:
-        jwt_user = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
-        if jwt_user and is_token_valid(token, settings.SECRET_KEY, [settings.ALGORITHM]):
-            user = db.query(User).filter(User.id == jwt_user["user_id"]).first()
-            if not user:
-                raise HTTPException(status_code=404, detail="User not found")
-            return user
-    except Exception as e:
-        print("JWT error:", e)
+        logger.warning("JWT token verification failed: %s", e)
 
     raise HTTPException(status_code=401, detail="Invalid token")

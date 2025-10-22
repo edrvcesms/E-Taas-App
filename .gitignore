@@ -1,7 +1,7 @@
-venv
+venv/
 __pycache__/
-etaas.db
-firebaseServiceAccountKey.json
 *.pyc
+instance
 .env
-test_token.html
+.env.*
+e-taas/tests/locustfile.py

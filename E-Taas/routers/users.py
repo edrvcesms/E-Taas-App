@@ -1,49 +1,71 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from fastapi import HTTPException, status
+from fastapi import APIRouter, Depends, Request
 from dependencies.auth import current_user
-from schemas.users import UserResponse, UserUpdate
-from sqlalchemy.orm import Session
-from services.users import get_user_details, update_user_details, delete_user_account
-from db.database import get_db
-from schemas.notification import UserNotificationResponse
-from services.notification import get_user_notifications, get_seller_notifications
-from typing import List, Dict
-from models import User
+from schemas.users import User as UserSchema, UserUpdate
+from models.users import User
+from dependencies.database import get_db
+import logging
+from services.users import get_user_by_id, update_user_details, delete_user
+from dependencies.limiter import limiter
 
-router = APIRouter(prefix="/users", tags=["users"])
+logger = logging.getLogger(__name__)
 
-@router.get("/profile", response_model=UserResponse)
-def get_user_profile(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return get_user_details(user.id, db)
+router = APIRouter(
+    prefix="/users",
+    tags=["users"]
+)
 
+@router.get("/details", response_model=UserSchema)
+@limiter.limit("20/minute")
+async def get_user(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    """Get user details by user ID. Requires authentication."""
 
-@router.get("/notifications", response_model=List[UserNotificationResponse])
-def get_notifications(db: Session = Depends(get_db), user: User = Depends(current_user)):
+    if not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this user's details"
+        )
 
-    if not user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only logged-in users can view notifications")
+    return await get_user_by_id(db, current_user.id)
+
+@router.put("/update-details", response_model=UserSchema)
+@limiter.limit("10/minute")
+async def update_user(
+    request: Request,
+    user_update_data: UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    """Update user details by user ID. Requires authentication."""
+
+    if not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update this user's details"
+        )
     
-    if user.is_seller or user.is_admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only users can view user notifications")
+    return await update_user_details(db, current_user.id, user_update_data)
+
+@router.delete("/delete")
+@limiter.limit("5/minute")
+async def delete_user_account(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    """Delete user account by user ID. Requires authentication."""
+
+    if current_user.id and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this user's account"
+        )
     
-    return get_user_notifications(db, user.id)
-
-@router.put("/update-profile", response_model=UserResponse)
-def update_user(update_details: UserUpdate, db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
-    update_data = update_details.dict(exclude_unset=True)
-
-    updated_user = update_user_details(user.id, update_data, db)
-
-    return updated_user
-
-@router.delete("/delete-account")
-def delete_user(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return delete_user_account(user.id, db)
-
-
+    await delete_user(db, current_user.id)
+    return {"detail": "User account deleted successfully"}

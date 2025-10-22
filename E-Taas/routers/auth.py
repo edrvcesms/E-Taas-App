@@ -1,36 +1,33 @@
-from fastapi import APIRouter, Depends, HTTPException,status
-from fastapi.responses import JSONResponse as Response
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, status, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+from dependencies.database import get_db
+from dependencies.auth import current_user
 from services.auth import register_user, login_user
-from db.database import get_db
-from schemas.users import UserCreate, UserResponse
-from schemas.auth import LoginBase, LoginResponse
-from datetime import timedelta
+from schemas.auth import UserRegister, UserLogin
+from dependencies.limiter import limiter
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(
+    prefix="/auth",
+    tags=["auth"]
+)
 
-@router.post("/register", response_model=UserResponse)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    """Register a new user."""
-    new_user = register_user(user, db)
-    return new_user
+@router.post("/register", status_code=status.HTTP_201_CREATED)
+@limiter.limit("10/minute")
+async def register(
+    request: Request,
+    user_register_data: UserRegister,
+    db: AsyncSession = Depends(get_db)
+):
+    """Register a new user. It can also accepts register from Firebase authenticated users."""
+    return await register_user(db, user_register_data)
 
+@router.post("/login")
+@limiter.limit("10/minute")
+async def login(
+    request: Request,
+    user_login_data: UserLogin,
+    db: AsyncSession = Depends(get_db)
+):
+    """Login a user and return access and refresh tokens. It also supports Firebase authenticated users."""
+    return await login_user(db, user_login_data)
 
-@router.post("/login", response_model=LoginResponse)
-def login(user: LoginBase, db: Session = Depends(get_db)):
-    """Authenticate a user and return a JWT token."""
-    token_data = login_user(user, db)
-    return token_data
-
-
-
-# @router.post("/send-verification-otp")
-# async def send_verification_otp(email: str):
-#     """Send an OTP to the user's email for verification."""
-#     otp = generate_otp()
-#     subject = "Your Email Verification OTP"
-#     try:
-#         send_email(email, subject, otp)
-#         return {"message": "OTP sent successfully"} 
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail="Failed to send OTP")

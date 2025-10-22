@@ -1,73 +1,105 @@
-from models import User
-from core.security import hash_password, create_access_token, verify_password, create_refresh_token
-from datetime import datetime, timedelta
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select, update
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
-from schemas.users import UserCreate
-from schemas.auth import LoginBase
-from core.config import settings
-from sqlalchemy import or_
+from fastapi.concurrency import run_in_threadpool
+from core.security import hash_password, verify_password, create_access_token, create_refresh_token
+from models import User
+from sqlalchemy.ext.asyncio import AsyncSession
+import logging
 
-def register_user(user: UserCreate, db: Session):
-    db_user = db.query(User).filter(
-        or_(User.username == user.username, User.email == user.email)
-    ).first()
-    if db_user:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username or email already registered")
+logger = logging.getLogger(__name__)
 
-    hashed_password = hash_password(user.password)
-    new_user = User(
-        username=user.username,
-        email=user.email,
-        hashed_password=hashed_password,
-        is_active=False,
-    )
+async def register_user(db: AsyncSession, user_register_data):
+    try:
+        result = await db.execute(select(User).where(User.email == user_register_data.email))
+        if result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+        hashed_password = await run_in_threadpool(hash_password, user_register_data.password)
 
+        new_user = User(
+            username=user_register_data.username,
+            email=user_register_data.email,
+            hashed_password=hashed_password,
+        )
 
-def login_user(user: LoginBase, db: Session):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+        db.add(new_user)
+
+        await db.commit()
+        await db.refresh(new_user)
+
+        logger.info(f"User registered successfully: {new_user.email}")
+
+        return {
+            "message": "User registered successfully",
+            "id": new_user.id,
+            "username": new_user.username,
+            "email": new_user.email,
+        }
+
+    except IntegrityError as e:
+        await db.rollback()
+        if "duplicate key value" in str(e.orig):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        logger.error(f"Database integrity error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error occurred"
+        )
+
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Unexpected error during registration: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected error occurred"
+        )
     
-    if not verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
-    
-    expires_delta = timedelta(days=7) if getattr(user, "remember_me", False) else timedelta(hours=1)
-    expires = datetime.utcnow() + expires_delta
-    access_token = create_access_token(
-        data={
-        "sub": db_user.email,
-        "user_id": db_user.id,
-        "is_seller": db_user.is_seller,
-        "is_admin": db_user.is_admin,
-        "exp": expires
-    },
-        secret_key=settings.SECRET_KEY,
-        algorithm=settings.ALGORITHM,
-    )
-    refresh_token = create_refresh_token(
-        data={
-        "sub": db_user.email,
-        "user_id": db_user.id,
-        "is_seller": db_user.is_seller,
-        "is_admin": db_user.is_admin,
-        "exp": expires
-        },
-        secret_key=settings.SECRET_KEY,
-        algorithm=settings.ALGORITHM,
-    )
-    
-    return {
-        "message": "Login successful",
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer",
-        "expires_in": int(expires_delta.total_seconds())
-    }
+async def login_user(db: AsyncSession, user_login_data):
+    try:
+        result = await db.execute(select(User).where(User.email == user_login_data.email))
+        user = result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
 
+        if not await run_in_threadpool(verify_password, user_login_data.password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+
+        access_token = create_access_token(data={"user_id": user.id})
+        refresh_token = create_refresh_token(data={"user_id": user.id})
+
+        logger.info(f"User logged in successfully: {user.email}")
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }
+    
+    except IntegrityError as e:
+        logger.error(f"Database integrity error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error occurred"
+        )
+
+    except Exception as e:
+        logger.error(f"Unexpected error during login: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unexpected error occurred"
+        )
+    
 

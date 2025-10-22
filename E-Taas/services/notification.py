@@ -1,11 +1,29 @@
-from sqlalchemy.orm import Session
-from models.notification import UserNotification, SellerNotification
+from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from models.notification import UserNotification
+import logging
+from dependencies.websocket import connection_manager
+
+logger = logging.getLogger(__name__)
 
 
-def get_user_notifications(db: Session, user_id: int):
-    user_notifications = db.query(UserNotification).filter(UserNotification.user_id == user_id).all()
-    return user_notifications
+async def create_new_notification(db: AsyncSession, user_id: int, message: str) -> UserNotification:
+    """Create a new notification for a user."""
+    try:
+        notification = UserNotification(user_id=user_id, message=message)
+        db.add(notification)
+        await db.commit()
+        await db.refresh(notification)
 
-def get_seller_notifications(db: Session, seller_id: int):
-    seller_notifications = db.query(SellerNotification).filter(SellerNotification.seller_id == seller_id).all()
-    return seller_notifications
+        await connection_manager.send_message(message, user_id)
+
+        logger.info(f"Notification created for user {user_id}: {message}")
+        return notification
+    
+    except Exception as e:
+        await db.rollback()
+        logger.exception(f"Error creating notification for user {user_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
