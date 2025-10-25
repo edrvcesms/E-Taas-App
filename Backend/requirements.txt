@@ -17,3 +17,4 @@ passlib[bcrypt]
 cloudinary
 locust
 slowapi
+firebase-admin

@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+instance
+.env
+.env.*
+e-taas/tests/locustfile.py
+firebaseServiceAccountKey.json

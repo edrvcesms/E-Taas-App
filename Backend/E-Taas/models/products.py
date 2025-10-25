@@ -40,6 +40,7 @@ class Variant(Base):
     stock_quantity = Column(Integer, nullable=False, default=0)
 
     product = relationship("Product", back_populates="variants")
+    images = relationship("VariantImage", back_populates="variant", cascade="all, delete-orphan")
 
 class ProductImage(Base):
     __tablename__ = "product_images"
@@ -51,3 +52,14 @@ class ProductImage(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     product = relationship("Product", back_populates="images")
+
+class VariantImage(Base):
+    __tablename__ = "variant_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    variant_id = Column(Integer, ForeignKey("variants.id"), nullable=False)
+    image_url = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    variant = relationship("Variant", back_populates="images")
