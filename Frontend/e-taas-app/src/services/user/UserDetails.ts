@@ -11,3 +11,14 @@ export const getUserDetails = async () => {
     throw error;
   }
 }
+
+
+export const logoutUser = async () => {
+  try {
+    const res = await userApi.post("/logout/", {}, { withCredentials: true });
+    return res;
+  } catch (error) {
+    console.error("Error logging out user:", error);
+    throw error;
+  }
+}

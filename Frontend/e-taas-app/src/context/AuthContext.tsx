@@ -1,21 +1,16 @@
-import React from 'react'
-import { useContext, createContext } from 'react'
-import { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react'
 import type { User } from '../types/User';
-import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext<any | null>(null);
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
 
-  const navigate = useNavigate();
-
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser, isLoading, setIsLoading, navigate}}>
+    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser, isLoading, setIsLoading}}>
       {children}
     </AuthContext.Provider>
   )

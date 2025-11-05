@@ -1,15 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { User, Mail, Lock } from "lucide-react";
-import { registerUser } from "../../../services/auth/Register";
-import eTaas from "../../../assets/e-taas.png";
+import { registerUser } from "../../../services/auth/UserAuth";
+import authImage from "../../../components/auth/authImage";
 import { useAuth } from "../../../context/AuthContext";
 import { useUserSession } from "../../../hooks/userSession";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import type { RegisterData } from "../../../types/Auth";
 
 const Register = () => {
 
   useUserSession();
+  const navigate = useNavigate();
 
-  const {navigate, isAuthenticated, isLoading, setIsLoading} = useAuth();
+  const { isAuthenticated, isLoading, setIsLoading } = useAuth();
+  const { mutate } = useMutation({
+    mutationFn: (formData: RegisterData) => registerUser(formData),
+    onSuccess: (res) => {
+      if (res.status === 201) {
+        navigate("/login");
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -32,18 +50,7 @@ const Register = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    try {
-      const res = await registerUser(formData);
-      if(res.status === 201){
-        alert("Successful Register")
-        navigate("/login");
-      }
-    } catch (e) {
-      console.log(e);
-      alert("Failed to register. Please try again.");
-    } finally {
-      setIsLoading(false);
-    } 
+    mutate(formData);
   };
 
 
@@ -58,21 +65,16 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex">
       {/* Left Column - Branding Section */}
-      <div
-      className="hidden lg:flex lg:w-1/2 ml-8 bg-contain bg-center bg-no-repeat items-center justify-center"
-      style={{ backgroundImage: `url(${eTaas})` }}
-    > 
-        <img src= "../assets/e-taas.png" alt="" />
-      </div>
+      {authImage()}
 
       {/* Right Column - Form Section */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-4xl">
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold mb-2 text-gray-800">Create Account</h2>
-              <p className="text-gray-600">Fill in your details to get started</p>
-            </div>
+      <div className="w-full lg:w-2/5 flex items-center justify-center p-8">
+          <div className="w-full max-w-4xl">
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold mb-2 text-gray-800">Welcome Back</h2>
+                <p className="text-gray-600">Sign in to your account</p>
+              </div>
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username Input */}
             <div>
@@ -140,7 +142,7 @@ const Register = () => {
               disabled={isLoading}
               className="w-full bg-[#DD5BA3] hover:bg-[#C94A8F] text-white font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              {isLoading ? "Signing up..." : "Sign up"}
+              {isLoading ? "Creating..." : "Create Account"}
             </button>
 
             {/* Divider */}
@@ -182,7 +184,7 @@ const Register = () => {
             {/* Sign In Link */}
             <div className="text-center text-sm text-gray-600 mt-6">
               Already have an account?{" "}
-              <a onClick={() => navigate("/login")} className="text-[#DD5BA3] font-semibold hover:underline">
+              <a onClick={() => navigate("/login")} className="text-[#DD5BA3] font-semibold hover:underline cursor-pointer">
                 Sign in
               </a>
             </div>
