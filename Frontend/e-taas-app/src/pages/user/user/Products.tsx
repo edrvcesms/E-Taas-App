@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ShoppingCart, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Product {
   id: number;
@@ -115,8 +116,6 @@ const mockProducts: Product[] = [
   }
 ];
 
-
-
 const categories = ["All", "Jams", "Nuts", "Vinegar", "Vegetables"];
 
 export const Products = () => {
@@ -129,75 +128,120 @@ export const Products = () => {
   return (
     <div>
       {/* Header */}
-  <section className="py-12 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/5 to-white">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-pink-500 mb-4">Our Products</h1>
-          <p className="text-gray-700 max-w-3xl">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-white"
+      >
+        <div className="max-w-7xl mx-auto text-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-4xl md:text-5xl font-bold text-pink-500 mb-6"
+          >
+            Products
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-lg text-gray-600 max-w-3xl mx-auto"
+          >
             Browse quality products from verified E-TAAS members. Every purchase supports Filipino women entrepreneurs.
-          </p>
+          </motion.p>
         </div>
-      </section>
+      </motion.section>
 
       {/* Category Filter */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-200"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap gap-3">
-            {categories.map((category) => (
-              <button
+            {categories.map((category, index) => (
+              <motion.button
                 key={category}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedCategory(category)}
                 className={`px-6 py-2 rounded-full transition-colors ${
                   selectedCategory === category
-                    ? 'bg-[#DD5BA3] text-white'
+                    ? 'bg-pink-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 {category}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Products Grid */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+          <motion.div 
+            layout
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {filteredProducts.map((product, index) => (
+              <motion.div 
+                key={product.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                whileHover={{ y: -8 }}
+                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
+              >
                 <div className="w-full h-64 bg-gray-100 overflow-hidden">
-  <img
-    src={product.image}
-    alt={product.name}
-    className="w-full h-full object-cover"
-  />
-</div>
+                  <motion.img
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.4 }}
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <h3 className="text-pink-500 mb-1">{product.name}</h3>
+                      <h3 className="text-lg font-semibold text-pink-500 mb-1">{product.name}</h3>
                       <p className="text-sm text-gray-600">{product.seller}</p>
                     </div>
-                    <span className="bg-pink-500/10 text-pink-500 px-3 py-1 rounded-full text-sm">
+                    <span className="bg-pink-500/10 text-pink-500 px-3 py-1 rounded-full text-sm font-medium">
                       {product.category}
                     </span>
                   </div>
                   <p className="text-gray-700 text-sm mb-4 line-clamp-2">{product.description}</p>
                   <div className="flex items-center gap-1 mb-4">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-gray-700">{product.rating}</span>
+                    <span className="text-sm font-medium text-gray-700">{product.rating}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-pink-500">₱{product.price}</span>
-                    <button className="px-4 py-2 bg-pink-500 text-white rounded-full hover:opacity-90 transition-opacity flex items-center gap-2">
+                    <span className="text-2xl font-bold text-pink-500">₱{product.price}</span>
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-4 py-2 bg-pink-500 text-white rounded-full hover:opacity-90 transition-opacity flex items-center gap-2"
+                    >
                       <ShoppingCart className="w-4 h-4" />
                       Add to Cart
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>

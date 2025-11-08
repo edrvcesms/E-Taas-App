@@ -12,6 +12,28 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format } from 'date-fns';
+import { motion, useInView } from 'framer-motion';
+
+// Animation variants - All bottom to top (same as Home)
+const fadeInUp: any = {
+  hidden: { opacity: 0, y: 60 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.7 }
+  }
+};
+
+const staggerContainer: any = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1
+    }
+  }
+};
 
 // Utility function
 function cn(...inputs: ClassValue[]) {
@@ -417,6 +439,53 @@ const services: Service[] = [
   }
 ];
 
+// Service Card Component with scroll animation
+const ServiceCard = ({ service, onInquire }: { service: Service; onInquire: (service: Service) => void }) => {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+    >
+      <div className="h-48 overflow-hidden">
+        <img 
+          src={service.image} 
+          alt={service.title}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+        />
+      </div>
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-pink-500 mb-3 text-center">{service.title}</h3>
+        <p className="text-gray-600 text-center mb-5 text-sm leading-relaxed">{service.description}</p>
+        
+        <div className="mb-6 bg-gray-50 rounded-lg p-4">
+          <p className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">What's included:</p>
+          <ul className="space-y-2">
+            {service.features.map((feature, index) => (
+              <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
+                <span className="text-pink-500 mt-0.5 font-bold">✓</span>
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <button
+          onClick={() => onInquire(service)}
+          className="w-full px-6 py-3 bg-linear-to-r from-pink-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium hover:scale-[1.02]"
+        >
+          Inquire Now
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
 // Main Services Component
 export const Services = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -428,6 +497,9 @@ export const Services = () => {
     phone: '',
     message: ''
   });
+
+  const headerRef = React.useRef(null);
+  const headerInView = useInView(headerRef, { once: true, amount: 0.3 });
 
   const handleInquire = (service: Service) => {
     setSelectedService(service);
@@ -451,13 +523,19 @@ export const Services = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-[#DD5BA3]/10 via-[#DD5BA3]/5 to-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#DD5BA3] mb-6">Our Services</h1>
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/10 via-pink-500/5 to-white">
+        <motion.div 
+          ref={headerRef}
+          initial={{ opacity: 0, y: 60 }}
+          animate={headerInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 60 }}
+          transition={{ duration: 0.7 }}
+          className="max-w-7xl mx-auto text-center"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-pink-500 mb-6">Our Services</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             We offer comprehensive support services to help E-TAAS members grow their businesses and succeed in the digital marketplace.
           </p>
-        </div>
+        </motion.div>
       </section>
 
       {/* Services Grid */}
@@ -465,38 +543,11 @@ export const Services = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
-              <div key={service.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={service.image} 
-                    alt={service.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-[#DD5BA3] mb-3 text-center">{service.title}</h3>
-                  <p className="text-gray-600 text-center mb-5 text-sm leading-relaxed">{service.description}</p>
-                  
-                  <div className="mb-6 bg-gray-50 rounded-lg p-4">
-                    <p className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">What's included:</p>
-                    <ul className="space-y-2">
-                      {service.features.map((feature, index) => (
-                        <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
-                          <span className="text-[#DD5BA3] mt-0.5 font-bold">✓</span>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <button
-                    onClick={() => handleInquire(service)}
-                    className="w-full px-6 py-3 bg-linear-to-r from-[#DD5BA3] to-[#C94A8E] text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium hover:scale-[1.02]"
-                  >
-                    Inquire Now
-                  </button>
-                </div>
-              </div>
+              <ServiceCard 
+                key={service.id} 
+                service={service} 
+                onInquire={handleInquire}
+              />
             ))}
           </div>
         </div>
@@ -506,14 +557,14 @@ export const Services = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
           <DialogHeader className="space-y-3">
-            <div className="w-20 h-20 rounded-full mx-auto overflow-hidden border-4 border-[#DD5BA3]/20">
+            <div className="w-20 h-20 rounded-full mx-auto overflow-hidden border-4 border-pink-500/20">
               <img 
                 src={selectedService?.image} 
                 alt={selectedService?.title}
                 className="w-full h-full object-cover"
               />
             </div>
-            <DialogTitle className="text-2xl text-[#DD5BA3] text-center">
+            <DialogTitle className="text-2xl text-pink-500 text-center">
               {selectedService?.title}
             </DialogTitle>
             <DialogDescription className="text-center">
@@ -612,7 +663,7 @@ export const Services = () => {
               <Button
                 type="button"
                 onClick={handleSubmit}
-                className="flex-1 h-11 bg-linear-to-r from-[#DD5BA3] to-[#C94A8E] hover:shadow-lg transition-all"
+                className="flex-1 h-11 bg-linear-to-r from-pink-500 to-pink-500 hover:shadow-lg transition-all"
               >
                 Submit Inquiry
               </Button>

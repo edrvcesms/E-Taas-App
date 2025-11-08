@@ -1,65 +1,65 @@
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship
 from db.database import Base
+from sqlalchemy.orm import relationship
 
 class Product(Base):
-    __tablename__ = "products"
-
+    __tablename__ = 'products'
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    seller_id = Column(Integer, ForeignKey('sellers.id'), nullable=False)
+    product_name = Column(String, nullable=False)
+    base_price = Column(Float, nullable=False)
+    stock = Column(Integer, default=0)
+    category = Column(String, nullable=True)
     description = Column(String, nullable=True)
-    base_price = Column(Numeric(10, 2), nullable=False)
-    seller_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
+    created_at = Column(String, default=datetime.utcnow().isoformat())
 
-    seller = relationship("User", back_populates="products")
+    seller = relationship("Seller", back_populates="products")
     images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
+    variants = relationship("ProductVariant", back_populates="product", cascade="all, delete-orphan")
     variant_categories = relationship("VariantCategory", back_populates="product", cascade="all, delete-orphan")
-    variants = relationship("Variant", back_populates="product", cascade="all, delete-orphan")
-    category = relationship("Category", back_populates="products")
-
-class VariantCategory(Base):
-    __tablename__ = "variant_categories"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
-    name = Column(String, nullable=False) # size, color, etc.
-    values = Column(String, nullable=False) # Red, Blue, Green or S, M, L
-
-    product = relationship("Product", back_populates="variant_categories")
-
-class Variant(Base):
-    __tablename__ = "variants"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
-    variant_combination = Column(String, nullable=False) # e.g., "Red-L", "Blue-M"
-    price = Column(Numeric(10, 2), nullable=False)
-    stock_quantity = Column(Integer, nullable=False, default=0)
-
-    product = relationship("Product", back_populates="variants")
-    images = relationship("VariantImage", back_populates="variant", cascade="all, delete-orphan")
+    category = relationship("ProductCategory", back_populates="product", cascade="all, delete-orphan")
+    cart_items = relationship("CartItem", back_populates="product")
+    order_items = relationship("OrderItem", back_populates="product")
 
 class ProductImage(Base):
-    __tablename__ = "product_images"
+    __tablename__ = 'product_images'
 
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
     image_url = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     product = relationship("Product", back_populates="images")
 
-class VariantImage(Base):
-    __tablename__ = "variant_images"
+class ProductVariant(Base):
+    __tablename__ = 'product_variants'
 
     id = Column(Integer, primary_key=True, index=True)
-    variant_id = Column(Integer, ForeignKey("variants.id"), nullable=False)
-    image_url = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
+    variant_name = Column(String, nullable=False)
+    stock = Column(Integer, default=0)
+    price = Column(Float, nullable=False)
+    image_url = Column(String, nullable=True)
 
-    variant = relationship("Variant", back_populates="images")
+    product = relationship("Product", back_populates="variants")
+    order_items = relationship("OrderItem", back_populates="variant")
+
+class VariantCategory(Base):
+    __tablename__ = 'variant_categories'
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
+    category_name = Column(String, nullable=False)
+
+    product = relationship("Product", back_populates="variant_categories")
+    attributes = relationship("VariantAttribute", back_populates="category", cascade="all, delete-orphan")
+
+class VariantAttribute(Base):
+    __tablename__ = 'variant_attributes'
+
+    id = Column(Integer, primary_key=True, index=True)
+    category_id = Column(Integer, ForeignKey('variant_categories.id'), nullable=False)
+    values = Column(String, nullable=False)
+
+    category = relationship("VariantCategory", back_populates="attributes")
