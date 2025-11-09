@@ -15,10 +15,3 @@ class Token(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
 
-class TokenData(BaseModel):
-    email: Optional[str] = None
-
-class FirebaseUser(BaseModel):
-    uid: str
-    email: EmailStr
-

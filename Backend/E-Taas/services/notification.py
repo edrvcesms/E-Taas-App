@@ -1,16 +1,16 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.notification import UserNotification
+from models.notification import Notification
 import logging
 from dependencies.websocket import connection_manager
 
 logger = logging.getLogger(__name__)
 
 
-async def create_new_notification(db: AsyncSession, user_id: int, message: str) -> UserNotification:
+async def create_new_notification(db: AsyncSession, user_id: int, message: str) -> Notification:
     """Create a new notification for a user."""
     try:
-        notification = UserNotification(user_id=user_id, message=message)
+        notification = Notification(user_id=user_id, message=message)
         db.add(notification)
         await db.commit()
         await db.refresh(notification)

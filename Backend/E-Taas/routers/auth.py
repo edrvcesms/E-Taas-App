@@ -4,6 +4,7 @@ from dependencies.database import get_db
 from dependencies.auth import current_user
 from services.auth import register_user, login_user, token_refresh
 from schemas.auth import UserRegister, UserLogin
+from models.users import User
 from dependencies.limiter import limiter
 
 
@@ -31,3 +32,11 @@ async def login(
 ):
     """Login a user and return access and refresh tokens. It also supports Firebase authenticated users."""
     return await login_user(db, user_login_data)
+
+@router.post("/token/refresh")
+@limiter.limit("15/minute")
+async def refresh_token(
+    request: Request
+):
+    """Refresh access token using a valid refresh token."""
+    return await token_refresh(request)

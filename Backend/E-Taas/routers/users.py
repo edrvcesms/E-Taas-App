@@ -3,7 +3,7 @@ from sqlalchemy import select
 from fastapi import HTTPException, status
 from fastapi import APIRouter, Depends, Request
 from dependencies.auth import current_user
-from schemas.users import User as UserSchema, UserUpdate
+from schemas.users import UserBase, UserUpdate
 from models.users import User
 from dependencies.database import get_db
 import logging
@@ -17,7 +17,9 @@ router = APIRouter(
     tags=["users"]
 )
 
-@router.get("/details", response_model=UserSchema)
+
+
+@router.get("/details", response_model=UserBase)
 @limiter.limit("20/minute")
 async def get_user(
     request: Request,
@@ -34,7 +36,7 @@ async def get_user(
 
     return await get_user_by_id(db, current_user.id)
 
-@router.put("/update-details", response_model=UserSchema)
+@router.put("/update-details", response_model=UserBase)
 @limiter.limit("10/minute")
 async def update_user(
     request: Request,
