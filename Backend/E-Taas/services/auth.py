@@ -10,50 +10,6 @@ import logging
 from fastapi.responses import JSONResponse
 logger = logging.getLogger(__name__)
 
-
-async def create_admin_user(db: AsyncSession, admin_register_data):
-    try:
-        result = await db.execute(select(User).where(User.email == admin_register_data.email))
-        existing_user = result.scalar_one_or_none()
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already registered"
-            )
-        
-        hashed_password = await run_in_threadpool(hash_password, admin_register_data.password)
-
-        new_admin = User(
-            username=admin_register_data.username,
-            email=admin_register_data.email,
-            hashed_password=hashed_password,
-            is_admin=True
-        )
-
-        db.add(new_admin)
-        await db.commit()
-        await db.refresh(new_admin)
-        logger.info(f"Admin user created successfully: {new_admin.email}")
-        return {
-            "message": "Admin user created successfully",
-            "id": new_admin.id,
-            "username": new_admin.username,
-            "email": new_admin.email,
-        }
-    
-    except HTTPException:
-        raise
-    
-    except Exception as e:
-        await db.rollback()
-        logger.error(f"Error creating admin user: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error creating admin user"
-        )
-    
-
-
 async def register_user(db: AsyncSession, user_register_data):
     try:
         result = await db.execute(select(User).where(User.email == user_register_data.email))
@@ -94,6 +50,19 @@ async def register_user(db: AsyncSession, user_register_data):
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error creating user"
             )
+
+    except IntegrityError as e:
+        await db.rollback()
+        if "duplicate key value" in str(e.orig):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email already registered"
+            )
+        logger.error(f"Database integrity error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error occurred"
+        )
 
     except HTTPException:
         raise
@@ -155,6 +124,13 @@ async def login_user(db: AsyncSession, user_login_data):
         logger.info(f"User logged in successfully: {user.email}")
 
         return response
+    
+    except IntegrityError as e:
+        logger.error(f"Database integrity error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error occurred"
+        )
     except HTTPException:
         raise
 

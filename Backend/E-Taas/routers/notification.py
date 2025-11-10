@@ -6,7 +6,6 @@ from asyncio import create_task
 
 router = APIRouter()
 
-
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, token: str = Query(...)):
 

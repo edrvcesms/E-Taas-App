@@ -19,7 +19,7 @@ async def current_user(
     token = request.cookies.get("access_token")
     
     if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing access token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
 
     try:
         jwt_payload = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
