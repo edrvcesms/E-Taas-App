@@ -6,6 +6,12 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str
 
+class AdminRegister(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    is_admin: bool = True
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str

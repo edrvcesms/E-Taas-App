@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
 from db.database import Base
 from sqlalchemy.orm import relationship
 
@@ -12,6 +12,7 @@ class Seller(Base):
     business_contact = Column(String, nullable=True)
     display_name = Column(String, nullable=True)
     owner_address = Column(String, nullable=True)
+    is_verified = Column(Boolean, default=False)
     followers = Column(Integer, default=0)
     ratings = Column(Float, default=0.00)
 
