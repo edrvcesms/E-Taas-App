@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class ProductBase(BaseModel):
     product_name: str
@@ -19,4 +19,30 @@ class ProductUpdate(BaseModel):
     stock: Optional[int] = None
     has_variants: Optional[bool] = None
     category_id: Optional[int] = None
+
+
+class VariantBase(BaseModel):
+    stock: int
+    price: float
+    image_url: str
+
+
+class VariantCreate(VariantBase):
+    product_id: int
+    attribute_ids: list[int]
+
+class VariantCategoryCreate(BaseModel):
+    product_id: int
+    category_name: str
+
+class VariantAttributeCreate(BaseModel):
+    category_id: int
+    value: str
+
+class ProductFullCreate(BaseModel):
+    product: ProductCreate
+    variant_categories: Optional[List[VariantCategoryCreate]] = None
+    variant_attributes: Optional[List[VariantAttributeCreate]] = None
+    variants: Optional[List[VariantCreate]] = None
+
 

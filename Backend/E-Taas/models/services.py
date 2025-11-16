@@ -8,6 +8,7 @@ class Service(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     seller_id = Column(Integer, ForeignKey('sellers.id'), nullable=False)
+    category_id = Column(Integer, ForeignKey('service_categories.id'), nullable=False)
     service_name = Column(String, nullable=False)
     owner_name = Column(String, nullable=False)
     service_contact = Column(String, nullable=True)
@@ -21,7 +22,7 @@ class Service(Base):
     created_at = Column(String, default=datetime.utcnow().isoformat())
 
     seller = relationship("Seller", back_populates="services")
-    category = relationship("ServiceCategory", back_populates="service", cascade="all, delete-orphan")
+    category = relationship("ServiceCategory", back_populates="service")
     images = relationship("ServiceImage", back_populates="service", cascade="all, delete-orphan")
     inquiries = relationship("ServiceInquiry", back_populates="service")
 

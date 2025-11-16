@@ -14,6 +14,7 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     seller_id = Column(Integer, ForeignKey('sellers.id'), nullable=False)
+    category_id = Column(Integer, ForeignKey('product_categories.id'), nullable=False)
     product_name = Column(String, nullable=False)
     base_price = Column(Float, nullable=False)
     stock = Column(Integer, default=0)
@@ -25,7 +26,7 @@ class Product(Base):
     images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
     variants = relationship("ProductVariant", back_populates="product", cascade="all, delete-orphan")
     variant_categories = relationship("VariantCategory", back_populates="product", cascade="all, delete-orphan")
-    category = relationship("ProductCategory", back_populates="product", cascade="all, delete-orphan")
+    category = relationship("ProductCategory", back_populates="product")
     cart_items = relationship("CartItem", back_populates="product")
     order_items = relationship("OrderItem", back_populates="product")
 
@@ -67,7 +68,7 @@ class VariantAttribute(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     category_id = Column(Integer, ForeignKey('variant_categories.id'), nullable=False)
-    values = Column(String, nullable=False)
+    value = Column(String, nullable=False)
 
     category = relationship("VariantCategory", back_populates="attributes")
     product_variants = relationship("ProductVariant", secondary='variant_attribute_values', back_populates="attributes")

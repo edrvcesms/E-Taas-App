@@ -5,6 +5,7 @@ from dependencies.auth import current_user
 from services.admin import add_product_category, add_service_category, approve_seller, get_sellers_applications
 from services.auth import create_admin_user
 from schemas.auth import AdminRegister
+from schemas.category import ProductCategoryCreate, ServiceCategoryCreate
 from models.users import User
 from dependencies.limiter import limiter
 
@@ -25,7 +26,7 @@ async def register_admin(
 @limiter.limit("5/minute")
 async def create_product_category(
     request: Request,
-    category_name: str,
+    category: ProductCategoryCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(current_user)
 ):
@@ -35,13 +36,13 @@ async def create_product_category(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to perform this action"
         )
-    return await add_product_category(db, category_name)
+    return await add_product_category(db, category)
 
 @router.post("/add-service-category", status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 async def create_service_category(
     request: Request,
-    category_name: str,
+    category: ServiceCategoryCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(current_user)
 ):
@@ -51,7 +52,7 @@ async def create_service_category(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to perform this action"
         )
-    return await add_service_category(db, category_name)
+    return await add_service_category(db, category)
 
 
 @router.get("/seller-applications", status_code=status.HTTP_200_OK)
