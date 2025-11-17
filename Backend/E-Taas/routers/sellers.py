@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from services.sellers import become_a_seller, get_shop_details
-from services.products import add_product_service, update_product, add_product_variant, add_variant_category, add_variant_attribute
+from services.products import add_product_service, update_product, add_variant_categories_with_attributes, add_product_variants
 from dependencies.database import get_db
 from dependencies.auth import current_user
 from schemas.sellers import SellerCreate
@@ -71,23 +71,16 @@ async def add_product_route(
     product = await add_product_service(db, data.product, current_user.id)
 
     if data.product.has_variants:
-        if not data.variant_categories or not data.variant_attributes or not data.variants:
+        if not data.variant_categories or not data.variants:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Variant categories, attributes, and variants are required."
+                detail="Variant categories and variants are required."
             )
 
-        # Create categories
-        for category in data.variant_categories:
-            await add_variant_category(db, category)
+        await add_variant_categories_with_attributes(db, data.variant_categories, product.id)
 
-        # Create attributes
-        for attr in data.variant_attributes:
-            await add_variant_attribute(db, attr)
+        await add_product_variants(db, data.variants, product.id)
 
-        # Create variants
-        for variant in data.variants:
-            await add_product_variant(db, variant)
     return product
 
     

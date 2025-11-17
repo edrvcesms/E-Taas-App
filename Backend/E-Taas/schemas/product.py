@@ -28,20 +28,20 @@ class VariantBase(BaseModel):
 
 
 class VariantCreate(VariantBase):
-    product_id: int
+    pass
 
-class VariantCategoryCreate(BaseModel):
-    product_id: int
-    category_name: str
 
 class VariantAttributeCreate(BaseModel):
-    category_id: int
     value: str
+
+class VariantCategoryCreate(BaseModel):
+    category_name: str
+    attributes: Optional[List[VariantAttributeCreate]] = None
+
 
 class ProductFullCreate(BaseModel):
     product: ProductCreate
     variant_categories: Optional[List[VariantCategoryCreate]] = None
-    variant_attributes: Optional[List[VariantAttributeCreate]] = None
     variants: Optional[List[VariantCreate]] = None
 
 
