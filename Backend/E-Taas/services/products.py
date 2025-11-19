@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from models.products import Product, VariantAttribute, VariantCategory, ProductVariant, variant_attribute_values
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from schemas.product import ProductCreate, ProductFullCreate, VariantCreate, VariantCategoryCreate
+from schemas.product import ProductCreate, ProductFullCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct, VariantUpdate
 from collections import defaultdict
 from itertools import product
 
@@ -62,55 +62,25 @@ async def add_product_service(db: AsyncSession, product: ProductCreate, seller_i
         )
     
     
-async def update_product_service(db: AsyncSession, product_id: int, product_data: ProductFullCreate) -> JSONResponse:
-    try:
-        result = await db.execute(select(Product).where(Product.id == product_id))
-        product = result.scalar_one_or_none()
-        if not product:
-            raise HTTPException(status_code=404, detail="Product not found")
+async def update_product_service(db: AsyncSession, product_id: int, product_update: UpdateProduct) -> JSONResponse:
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    product = result.scalar_one_or_none()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found."
+        )
+    
+    for var, value in vars(product_update).items():
+        if value is not None:
+            setattr(product, var, value)
+    
+    db.add(product)
+    await db.commit()
+    await db.refresh(product)
+    
+    return product
 
-        for field, value in vars(product_data.product).items():
-            if value is not None and field != "seller_id":
-                setattr(product, field, value)
-        db.add(product)
-        await db.commit()
-        await db.refresh(product)
-
-        if product_data.variant_categories:
-            for cat_data in product_data.variant_categories:
-                result = await db.execute(
-                    select(VariantCategory).where(
-                        VariantCategory.product_id == product_id,
-                        VariantCategory.category_name == cat_data.category_name
-                    )
-                )
-                category = result.scalar_one_or_none()
-                if not category:
-                    category = VariantCategory(category_name=cat_data.category_name, product_id=product_id)
-                    db.add(category)
-                    await db.commit()
-                    await db.refresh(category)
-
-                for attr_data in cat_data.attributes or []:
-                    result = await db.execute(
-                        select(VariantAttribute).where(
-                            VariantAttribute.category_id == category.id,
-                            VariantAttribute.value == attr_data.value
-                        )
-                    )
-                    if not result.scalar_one_or_none():
-                        db.add(VariantAttribute(value=attr_data.value, category_id=category.id))
-                await db.commit()
-
-        if product_data.variants:
-            await add_product_variants(db, product_data.variants, product_id)
-
-        return JSONResponse(status_code=200, content={"message": "Product updated successfully"})
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
     
 async def add_variant_categories_with_attributes(db: AsyncSession, categories: list[VariantCategoryCreate], product_id: int):
@@ -172,3 +142,102 @@ async def add_product_variants(db: AsyncSession, variants: list[VariantCreate], 
             created_variants.append(new_variant)
     await db.commit()
     return created_variants
+
+
+async def update_variant_category_service(db: AsyncSession, category_update: UpdateVariantCategory):
+    result = await db.execute(
+        select(VariantCategory).where(VariantCategory.id == category_update.id)
+    )
+    category = result.scalar_one_or_none()
+    if not category:
+        raise HTTPException(status_code=404, detail="Variant category not found.")
+
+    if category_update.category_name is not None:
+        category.category_name = category_update.category_name
+        db.add(category)
+
+    if category_update.attributes is not None:
+        q = await db.execute(
+            select(VariantAttribute).where(VariantAttribute.category_id == category.id)
+        )
+        existing_attr = q.scalars().all()
+        existing_map = {attr.id: attr for attr in existing_attr}
+
+        for item in category_update.attributes:
+            if getattr(item, "id", None) in existing_map:
+                attr = existing_map[item.id]
+                attr.value = item.value
+                db.add(attr)
+                del existing_map[item.id]
+            else:
+                new_attr = VariantAttribute(
+                    value=item.value,
+                    category_id=category.id
+                )
+                db.add(new_attr)
+
+        for leftover in existing_map.values():
+            await db.delete(leftover)
+
+    await db.flush()
+
+    category_rows = await db.execute(
+        select(VariantCategory).where(VariantCategory.product_id == category.product_id)
+    )
+    all_categories = category_rows.scalars().all()
+
+    attr_rows = await db.execute(
+        select(VariantAttribute).where(
+            VariantAttribute.category_id.in_([c.id for c in all_categories])
+        )
+    )
+    all_attributes = attr_rows.scalars().all()
+
+    groups = defaultdict(list)
+    for attr in all_attributes:
+        groups[attr.category_id].append(attr)
+
+    sorted_groups = [groups[c.id] for c in all_categories]
+    combos = list(product(*sorted_groups))
+
+    variant_rows = await db.execute(
+        select(ProductVariant).where(ProductVariant.product_id == category.product_id)
+    )
+    variants = variant_rows.scalars().all()
+
+    await db.execute(
+        variant_attribute_values.delete().where(
+            variant_attribute_values.c.variant_id.in_([v.id for v in variants])
+        )
+    )
+
+    for variant, combo in zip(variants, combos):
+        variant.variant_name = " - ".join([a.value for a in combo])
+        db.add(variant)
+
+        rows = [{"variant_id": variant.id, "attribute_id": a.id} for a in combo]
+        await db.execute(variant_attribute_values.insert(), rows)
+
+    await db.commit()
+    await db.refresh(category)
+    return category
+
+
+async def update_variant_service(db: AsyncSession, variant_id: int, variant_update: VariantUpdate) -> JSONResponse:
+    result = await db.execute(select(ProductVariant).where(ProductVariant.id == variant_id))
+    variant = result.scalar_one_or_none()
+    if not variant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product variant not found."
+        )
+    
+    for var, value in vars(variant_update).items():
+        if value is not None:
+            setattr(variant, var, value)
+    
+    db.add(variant)
+    await db.commit()
+    await db.refresh(variant)
+    
+    return variant

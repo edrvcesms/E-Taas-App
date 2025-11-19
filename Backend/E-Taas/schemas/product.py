@@ -22,6 +22,17 @@ class VariantBase(BaseModel):
 class VariantCreate(VariantBase):
     pass
 
+class VariantUpdate(VariantBase):
+    id: int
+
+class UpdateProduct(BaseModel):
+    product_name: Optional[str] = None
+    description: Optional[str] = None
+    base_price: Optional[float] = None
+    stock: Optional[int] = None
+    has_variants: Optional[bool] = None
+    category_id: Optional[int] = None
+
 
 class VariantAttributeCreate(BaseModel):
     value: Optional[str] = None
@@ -30,8 +41,18 @@ class VariantCategoryCreate(BaseModel):
     category_name: Optional[str] = None
     attributes: Optional[List[VariantAttributeCreate]] = None
 
+class UpdateVariantCategory(BaseModel):
+    id: int
+    category_name: Optional[str] = None
+    attributes: Optional[List[VariantAttributeCreate]] = None
+
 
 class ProductFullCreate(BaseModel):
     product: ProductCreate
     variant_categories: Optional[List[VariantCategoryCreate]] = None
     variants: Optional[List[VariantCreate]] = None
+
+class ProductFullUpdate(BaseModel):
+    product: UpdateProduct
+    variant_categories: Optional[List[UpdateVariantCategory]] = None
+    variants: Optional[List[VariantUpdate]] = None
