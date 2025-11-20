@@ -5,7 +5,7 @@ from services.products import add_product_service, update_product_service, add_v
 from dependencies.database import get_db
 from dependencies.auth import current_user
 from schemas.sellers import SellerCreate
-from schemas.product import ProductFullCreate, ProductFullUpdate
+from schemas.product import ProductFullCreate, ProductFullUpdate, VariantUpdate
 import logging
 from dependencies.limiter import limiter
 from models.users import User
@@ -74,7 +74,6 @@ async def add_product_route(
     request: Request,
     data: str = Form(...),
     product_images: list[UploadFile] = File(None),
-    variant_image: UploadFile = File(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(current_user)
 ):
@@ -92,15 +91,15 @@ async def add_product_route(
         await add_product_images(db, product.id, product_images)
 
     if parsed_data.product.has_variants:
-        if not parsed_data.variant_categories or not parsed_data.variants:
+        if not parsed_data.variant_categories:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Variant categories and variants are required."
+                detail="Variant categories are required."
             )
 
         await add_variant_categories_with_attributes(db, parsed_data.variant_categories, product.id)
-        
-        await add_product_variants(db, parsed_data.variants, product.id, variant_image)
+
+        await add_product_variants(db, parsed_data.variants, product.id)
 
     return product
 
@@ -122,15 +121,35 @@ async def update_product(
 
     product = await update_product_service(db, product_id, data.product)
 
-    if data.variants and data.product.has_variants:
-        for var_data in data.variants:
-            await update_variant_service(db, var_data.id, var_data)
-
     if data.variant_categories and data.product.has_variants:
         for cat_data in data.variant_categories:
             await update_variant_category_service(db, cat_data)
 
     return product
+
+
+
+@router.put("/update-variant/{variant_id}", status_code=status.HTTP_200_OK)
+@limiter.limit("10/minute")
+async def update_variant(
+    request: Request,
+    variant_id: int,
+    variant_data: str = Form(...),
+    variant_image: UploadFile = File(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    if not current_user or not current_user.is_seller:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only sellers can update variants."
+        )
+
+    parsed_variant_data = VariantUpdate.parse_raw(variant_data)
+
+    return await update_variant_service(db, parsed_variant_data, variant_id, variant_image)
+
+
 
 @router.delete("/delete-product/{product_id}", status_code=status.HTTP_200_OK)
 async def delete_product(

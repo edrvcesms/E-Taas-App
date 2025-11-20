@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from models.products import Product, VariantAttribute, VariantCategory, ProductVariant, variant_attribute_values, ProductImage
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from schemas.product import ProductCreate, ProductFullCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct, VariantUpdate
+from schemas.product import ProductCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct, VariantUpdate
 from collections import defaultdict
 from itertools import product
 from utils.cloudinary import upload_image_to_cloudinary, upload_single_image_to_cloudinary
@@ -135,7 +135,7 @@ async def add_variant_categories_with_attributes(db: AsyncSession, categories: l
         created_categories.append(new_cat)
     return created_categories
 
-async def add_product_variants(db: AsyncSession, variants: list[VariantCreate], product_id: int, images: list[UploadFile] = None):
+async def add_product_variants(db: AsyncSession, variants: list[VariantCreate], product_id: int):
     categories_query = await db.execute(
         select(VariantCategory).where(VariantCategory.product_id == product_id)
     )
@@ -157,17 +157,13 @@ async def add_product_variants(db: AsyncSession, variants: list[VariantCreate], 
     for variant in variants:
         for combo in variant_combinations:
 
-            image_url = ""
-            if images:
-                upload_single_image_to_cloudinary
-
             variant_name = " - ".join([attr.value for attr in combo])
             new_variant = ProductVariant(
                 product_id=product_id,
                 variant_name=variant_name,
                 stock=variant.stock if variant.stock is not None else 0,
                 price=variant.price if variant.price is not None else 0.0,
-                image_url=image_url
+                image_url=""
             )
             db.add(new_variant)
             await db.commit()
@@ -185,6 +181,29 @@ async def add_product_variants(db: AsyncSession, variants: list[VariantCreate], 
     await db.commit()
     return created_variants
 
+async def update_variant_service(db: AsyncSession, variant_update: VariantUpdate, variant_id: int, variant_image: UploadFile = None):
+
+    result = await db.execute(select(ProductVariant).where(ProductVariant.id == variant_id))
+    variant = result.scalar_one_or_none()
+    if not variant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product variant not found."
+        )
+    
+    for var, value in vars(variant_update).items():
+        if value is not None:
+            setattr(variant, var, value)
+    
+    if variant_image:
+        upload_result = await upload_single_image_to_cloudinary(variant_image, folder="variant_images")
+        variant.image_url = upload_result["secure_url"]
+    
+    db.add(variant)
+    await db.commit()
+    await db.refresh(variant)
+    
+    return variant
 
 async def update_variant_category_service(db: AsyncSession, category_update: UpdateVariantCategory):
     result = await db.execute(
@@ -344,24 +363,6 @@ async def update_variant_category_service(db: AsyncSession, category_update: Upd
     await db.refresh(category)
     return category
 
-async def update_variant_service(db: AsyncSession, variant_id: int, variant_update: VariantUpdate) -> JSONResponse:
-    result = await db.execute(select(ProductVariant).where(ProductVariant.id == variant_id))
-    variant = result.scalar_one_or_none()
-    if not variant:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product variant not found."
-        )
-    
-    for var, value in vars(variant_update).items():
-        if value is not None:
-            setattr(variant, var, value)
-    
-    db.add(variant)
-    await db.commit()
-    await db.refresh(variant)
-    
-    return variant
 
 async def delete_product_service(db: AsyncSession, product_id: int) -> JSONResponse:
     result = await db.execute(select(Product).where(Product.id == product_id))
