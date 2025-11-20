@@ -26,9 +26,9 @@ async def get_cart_items(db: AsyncSession, cart_id: int) -> list[CartItem]:
     return items
 
 async def add_item_to_cart(db: AsyncSession, user_id: int, item_data: CartItemBase) -> CartItem:
-    try: 
+    try:
         cart = await get_cart_by_user(db, user_id)
-
+        
         result = await db.execute(
             select(Product).where(Product.id == item_data.product_id)
         )
@@ -123,4 +123,34 @@ async def clear_cart(db: AsyncSession, cart_id: int) -> None:
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"detail": "Cart cleared successfully."}
+    )
+
+async def edit_cart_item(db: AsyncSession, cart_item_id: int, quantity: int) -> CartItem:
+    result = await db.execute(
+        select(CartItem).where(CartItem.id == cart_item_id)
+    )
+    cart_item = result.scalar_one_or_none()
+    if not cart_item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Cart item not found."
+        )
+    
+    cart_item.quantity = quantity
+    cart_item.subtotal = cart_item.price * quantity
+    
+    db.add(cart_item)
+    await db.commit()
+    await db.refresh(cart_item)
+    
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"detail": "Cart item updated successfully.", "cart_item": {
+            "id": cart_item.id,
+            "product_id": cart_item.product_id,
+            "variant_id": cart_item.variant_id,
+            "quantity": cart_item.quantity,
+            "price": cart_item.price,
+            "subtotal": cart_item.subtotal
+        }}
     )

@@ -10,7 +10,7 @@ from dependencies.database import get_db
 import logging
 from services.users import get_user_by_id, update_user_details, delete_user, logout_user
 from dependencies.limiter import limiter
-from services.cart import get_cart_by_user, get_cart_items, add_item_to_cart, remove_item_from_cart, clear_cart
+from services.cart import get_cart_by_user, get_cart_items, add_item_to_cart, remove_item_from_cart, clear_cart, edit_cart_item
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +101,25 @@ async def add_item_to_cart_endpoint(
         )
     
     cart_item = await add_item_to_cart(db, current_user.id, item_data)
+    return cart_item
+
+@router.put("/cart/update-item/{item_id}", status_code=status.HTTP_200_OK)
+@limiter.limit("10/minute")
+async def update_cart_item_endpoint(
+    request: Request,
+    item_id: int,
+    item_data: CartItemBase,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    """Update an item in the current user's cart."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required to update cart items."
+        )
+    
+    cart_item = await edit_cart_item(db, item_id, item_data.quantity)
     return cart_item
 
 @router.delete("/cart/remove-item/{item_id}", status_code=status.HTTP_200_OK)
