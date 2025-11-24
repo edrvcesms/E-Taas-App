@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from db.database import engine, Base
-from routers import auth, users, admin, notification, sellers, products, service
+from routers import auth, users, admin, notification, sellers, products, service, cart
 from slowapi.errors import RateLimitExceeded
 from dependencies.limiter import rate_limit_exceeded_handler, limiter
 
@@ -39,3 +39,4 @@ app.include_router(notification.router, prefix="/v1/api/notifications", tags=["n
 app.include_router(sellers.router, prefix="/v1/api/sellers", tags=["sellers"])
 app.include_router(products.router, prefix="/v1/api/products", tags=["products"])
 app.include_router(service.router, prefix="/v1/api/services", tags=["services"])
+app.include_router(cart.router, prefix="/v1/api/cart", tags=["cart"])
