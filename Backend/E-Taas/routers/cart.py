@@ -52,7 +52,7 @@ async def add_item_to_cart_endpoint(
 async def update_cart_item_endpoint(
     request: Request,
     item_id: int,
-    item_data: CartItemBase,
+    quantity: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(current_user)
 ):
@@ -63,7 +63,7 @@ async def update_cart_item_endpoint(
             detail="Authentication required to update cart items."
         )
     
-    cart_item = await edit_cart_item(db, item_id, item_data.quantity)
+    cart_item = await edit_cart_item(db, item_id, quantity)
     return cart_item
 
 @router.delete("/remove-item/{item_id}", status_code=status.HTTP_200_OK)

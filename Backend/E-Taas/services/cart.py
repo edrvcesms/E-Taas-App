@@ -40,6 +40,12 @@ async def add_item_to_cart(db: AsyncSession, user_id: int, item_data: CartItemBa
             )
         
         price = 0.0
+        if item_data.quantity > product.stock:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Insufficient stock for the requested quantity."
+            )
+        
         subtotal = item_data.quantity * price
         if item_data.variant_id:
             result = await db.execute(
@@ -134,6 +140,22 @@ async def edit_cart_item(db: AsyncSession, cart_item_id: int, quantity: int) -> 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Cart item not found."
+        )
+    
+    product_result = await db.execute(
+        select(Product).where(Product.id == cart_item.product_id)
+    )
+    product = product_result.scalar_one_or_none()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated product not found."
+        )
+    
+    if quantity > product.stock:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Insufficient stock for the requested quantity."
         )
     
     cart_item.quantity = quantity

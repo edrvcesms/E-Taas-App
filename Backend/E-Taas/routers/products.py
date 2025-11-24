@@ -47,7 +47,7 @@ async def add_product_route(
 
     parsed_data = ProductFullCreate.parse_raw(data)
 
-    product = await add_product_service(db, parsed_data.product, current_user.id)
+    product = await add_product_service(db, parsed_data.product, parsed_data.product.seller_id)
     
     if product_images:
         await add_product_images(db, product.id, product_images)
