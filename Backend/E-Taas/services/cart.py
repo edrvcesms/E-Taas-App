@@ -72,9 +72,10 @@ async def add_item_to_cart(db: AsyncSession, user_id: int, item_data: CartItemBa
         subtotal = item_data.quantity * price
         if item_data.variant_id:
             result = await db.execute(
-                select(ProductVariant).where(ProductVariant.id == item_data.variant_id)
+                select(ProductVariant).where(ProductVariant.id == item_data.variant_id, ProductVariant.product_id == item_data.product_id)
             )
             variant = result.scalar_one_or_none()
+            
             if not variant:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
