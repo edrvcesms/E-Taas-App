@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.orders import OrderCreate
-from services.orders import get_orders_by_user, create_new_order, get_order_by_id
+from services.orders import get_orders_by_user, create_new_order, get_order_by_id, cancel_order_by_id, mark_order_as_received
 from dependencies.auth import current_user
 from dependencies.database import get_db
 from dependencies.limiter import limiter
@@ -59,3 +59,37 @@ async def checkout_order(
     
     new_order = await create_new_order(db, order, current_user.id, cart_items_id)
     return new_order
+
+@router.put("/cancel/{order_id}", status_code=status.HTTP_200_OK)
+@limiter.limit("5/minute")
+async def cancel_order(
+    request: Request,
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(current_user)
+):
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required to cancel an order."
+        )
+    
+    canceled_order = await cancel_order_by_id(db, order_id, current_user.id)
+    return canceled_order
+
+@router.put("/mark-received/{order_id}", status_code=status.HTTP_200_OK)
+@limiter.limit("5/minute")
+async def mark_order_received(
+    request: Request,
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(current_user)
+):
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required to mark an order as received."
+        )
+    
+    received_order = await mark_order_as_received(db, order_id, current_user.id)
+    return received_order

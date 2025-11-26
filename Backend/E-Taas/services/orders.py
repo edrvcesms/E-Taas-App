@@ -257,3 +257,80 @@ async def get_order_by_id(db: AsyncSession, order_id: int) -> OrderResponse:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while retrieving the order: {str(e)}"
         )
+    
+async def cancel_order_by_id(db: AsyncSession, order_id: int, user_id: int) -> Order:
+    try:
+        result = await db.execute(select(Order).where(Order.id == order_id))
+        order = result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Order not found."
+            )
+        if order.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to cancel this order."
+            )
+        if order.status != "Pending":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only pending orders can be canceled."
+            )
+        
+        order.status = "Cancelled"
+        await db.commit()
+        await db.refresh(order)
+        logger.info(f"Order ID {order_id} cancelled.")
+
+        return order
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Error canceling order ID {order_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to cancel the order."
+        ) from e
+    
+async def mark_order_as_received(db: AsyncSession, order_id: int, user_id: int) -> Order:
+    try:
+        result = await db.execute(select(Order).where(Order.id == order_id))
+        order = result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Order not found."
+            )
+        if order.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to update this order."
+            )
+        if order.status != "Shipped":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only shipped orders can be marked as received."
+            )
+        
+        order.status = "Delivered"
+        order.order_received_at = datetime.utcnow().isoformat()
+        await db.commit()
+        await db.refresh(order)
+        logger.info(f"Order ID {order_id} marked as received.")
+
+        return order
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Error marking order ID {order_id} as received: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update the order."
+        ) from e

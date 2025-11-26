@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link
+from services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link, mark_order_as_delivered
 from services.products import get_products_by_seller
 from dependencies.database import get_db
 from dependencies.auth import current_user
@@ -33,6 +33,23 @@ async def apply_as_seller(
     
     
     return await become_a_seller(db, seller_data, current_user.id)
+
+@router.post("/send-shipping-link/{order_id}", status_code=status.HTTP_200_OK)
+async def send_shipping_link_endpoint(
+    request: Request,
+    order_id: int,
+    shipping_link: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    if not current_user or not current_user.is_seller:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only sellers can send shipping links."
+        )
+    
+    response = await send_shipping_link(db, order_id, shipping_link, current_user.id)
+    return response
 
 
 @router.get("/shop", status_code=status.HTTP_200_OK)
@@ -80,7 +97,7 @@ async def get_seller_orders(
     orders = await get_all_orders_by_seller(db, current_user.id)
     return orders
 
-@router.post("/confirm-order/{order_id}", status_code=status.HTTP_200_OK)
+@router.put("/confirm-order/{order_id}", status_code=status.HTTP_200_OK)
 async def confirm_seller_order(
     request: Request,
     order_id: int,
@@ -96,19 +113,19 @@ async def confirm_seller_order(
     confirmation = await confirm_order_by_id(db, order_id, current_user.id)
     return confirmation
 
-@router.post("/send-shipping-link/{order_id}", status_code=status.HTTP_200_OK)
-async def send_shipping_link_endpoint(
+
+@router.put("/mark-delivered/{order_id}", status_code=status.HTTP_200_OK)
+async def mark_order_delivered_endpoint(
     request: Request,
     order_id: int,
-    shipping_link: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(current_user)
 ):
     if not current_user or not current_user.is_seller:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only sellers can send shipping links."
+            detail="Only sellers can mark orders as delivered."
         )
     
-    response = await send_shipping_link(db, order_id, shipping_link, current_user.id)
+    response = await mark_order_as_delivered(db, order_id, current_user.id)
     return response

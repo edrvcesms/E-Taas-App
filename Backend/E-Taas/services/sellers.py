@@ -179,3 +179,41 @@ async def send_shipping_link(db: AsyncSession, order_id: int, shipping_link: str
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update the shipping link."
         ) from e
+    
+async def mark_order_as_delivered(db: AsyncSession, order_id: int, seller_id: int) -> Order:
+    try:
+        result = await db.execute(select(Order).where(Order.id == order_id))
+        order = result.scalar_one_or_none()
+        if order.seller_id != seller_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to update this order."
+            )
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Order not found."
+            )
+        if order.status != "Shipped":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only shipped orders can be marked as delivered."
+            )
+        
+        order.status = "Delivered"
+        await db.commit()
+        await db.refresh(order)
+        logger.info(f"Order ID {order_id} marked as delivered.")
+
+        return order
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Error marking Order ID {order_id} as delivered: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to mark the order as delivered."
+        ) from e
