@@ -1,6 +1,6 @@
 from ast import List
 from fastapi import HTTPException, status
-from pyparsing import Optional
+from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -31,86 +31,153 @@ async def get_orders_by_user(db: AsyncSession, user_id: int):
             detail=f"An error occurred while fetching orders: {str(e)}"
         )
     
-async def create_new_order(db: AsyncSession, order_data: OrderCreate, user_id: int) -> Order:
+async def create_new_order(db: AsyncSession, order_data: OrderCreate, user_id: int, cart_items_id: Optional[List[int]]):
     try:
-        total_amount = 0.0
-        order_items_instances = []
 
-        for item in order_data.items:
-            logger.info(f"Processing order item: {item}")
-            result = await db.execute(select(Product).where(Product.id == item.product_id))
-            product = result.scalar_one_or_none()
-            logger.info(f"Retrieved product for order item: {product}")
-            if not product:
+        if cart_items_id is not None:
+            result = await db.execute(
+                select(CartItem)
+                .options(selectinload(CartItem.product), selectinload(CartItem.variant), selectinload(CartItem.cart))
+                .where(
+                    CartItem.id.in_(cart_items_id),
+                    CartItem.cart.has(Cart.user_id == user_id)
+                )
+            )
+            cart_items = result.scalars().all()
+            if not cart_items:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product with ID {item.product_id} not found."
-                )
-            if item.quantity > product.stock:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Insufficient stock for product ID {item.product_id}."
-                )
+                    detail="No valid cart items found for checkout."
+                )   
             
-            if order_data.seller_id != product.seller_id:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"This product does not belong to the specified seller."
-                )
-            
+            items_by_seller = {}
+            for item in cart_items:
+                seller_id = item.product.seller_id
+                if seller_id not in items_by_seller:
+                    items_by_seller[seller_id] = []
+                items_by_seller[seller_id].append(item)
 
-            if item.variant_id:
-                logger.info(f"Processing variant ID {item.variant_id} for order item: {item}")
-                result = await db.execute(select(ProductVariant).where(ProductVariant.id == item.variant_id))
-                logger.info(f"Retrieved product variant for order item: {result}")
-                variant = result.scalar_one_or_none()
-                if not variant:
+            new_orders = []
+
+            for seller_id, items in items_by_seller.items():
+                order_items = []
+                total_amount = 0.0
+
+                for item in items:
+                    product = item.product
+                    variant = item.variant
+
+                    price = variant.price if variant else product.base_price
+                    total_amount += price * item.quantity
+
+                    order_items.append(
+                        OrderItemCreate(
+                            product_id=item.product_id,
+                            variant_id=item.variant_id,
+                            quantity=item.quantity,
+                            price=price
+                        )
+                    )
+                    logger.info(f"Prepared order item for product ID {item.product_id} with quantity {item.quantity} and price {price}")
+
+                order_create_data = OrderCreate(
+                    seller_id=seller_id,
+                    shipping_address=order_data.shipping_address,
+                    payment_method=order_data.payment_method,
+                    items=order_items,
+                    total_amount=total_amount
+                )
+
+                new_order = await create_new_order(db, order_create_data, user_id, None)
+                new_orders.append(new_order)
+                logger.info(f"Created order ID {new_order.id} for seller ID {seller_id} with total amount {total_amount}")
+
+                for item in items:
+                    await db.delete(item)
+                    logger.info(f"Removed cart item ID {item.id} after checkout.")
+            await db.commit()
+            return new_orders
+        
+        else:
+
+            total_amount = 0.0
+            order_items_instances = []
+
+            for item in order_data.items:
+                logger.info(f"Processing order item: {item}")
+                result = await db.execute(select(Product).where(Product.id == item.product_id))
+                product = result.scalar_one_or_none()
+                logger.info(f"Retrieved product for order item: {product}")
+                if not product:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Product variant with ID {item.variant_id} not found."
+                        detail=f"Product with ID {item.product_id} not found."
                     )
-                price = variant.price
-            else:
-                price = product.base_price
+                if item.quantity > product.stock:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Insufficient stock for product ID {item.product_id}."
+                    )
+                
+                if order_data.seller_id != product.seller_id:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"This product does not belong to the specified seller."
+                    )
+                
 
-            total_price = price * item.quantity
-            total_amount += total_price
+                if item.variant_id:
+                    logger.info(f"Processing variant ID {item.variant_id} for order item: {item}")
+                    result = await db.execute(select(ProductVariant).where(ProductVariant.id == item.variant_id))
+                    logger.info(f"Retrieved product variant for order item: {result}")
+                    variant = result.scalar_one_or_none()
+                    if not variant:
+                        raise HTTPException(
+                            status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Product variant with ID {item.variant_id} not found."
+                        )
+                    price = variant.price
+                else:
+                    price = product.base_price
 
-            order_item_instance = OrderItem(
-                product_id=item.product_id,
-                variant_id=item.variant_id,
-                quantity=item.quantity,
-                price=price,
+                total_price = price * item.quantity
+                total_amount += total_price
+
+                order_item_instance = OrderItem(
+                    product_id=item.product_id,
+                    variant_id=item.variant_id,
+                    quantity=item.quantity,
+                    price=price,
+                )
+                order_items_instances.append(order_item_instance)
+                logger.info(f"Added order item instance: {order_item_instance}")
+
+            order_code = generate_order_code()
+
+            new_order = Order(
+                user_id=user_id,
+                seller_id=order_data.seller_id,
+                total_amount=total_amount,
+                shipping_address=order_data.shipping_address,
+                status="Pending",
+                payment_status="Unpaid",
+                payment_method=order_data.payment_method,
+                order_reference=order_code,
+                shipping_fee=70.0,
+                created_at=datetime.utcnow().isoformat()
             )
-            order_items_instances.append(order_item_instance)
-            logger.info(f"Added order item instance: {order_item_instance}")
+            db.add(new_order)
+            await db.flush()
+            logger.info(f"Created new order: {new_order}")
 
-        order_code = generate_order_code()
+            for order_item in order_items_instances:
+                order_item.order_id = new_order.id
+                db.add(order_item)
+                logger.info(f"Added order item to order: {order_item}")
 
-        new_order = Order(
-            user_id=user_id,
-            seller_id=order_data.seller_id,
-            total_amount=total_amount,
-            shipping_address=order_data.shipping_address,
-            status="Pending",
-            payment_status="Unpaid",
-            payment_method=order_data.payment_method,
-            order_reference=order_code,
-            shipping_fee=70.0,
-            created_at=datetime.utcnow().isoformat()
-        )
-        db.add(new_order)
-        await db.flush()
-        logger.info(f"Created new order: {new_order}")
-
-        for order_item in order_items_instances:
-            order_item.order_id = new_order.id
-            db.add(order_item)
-            logger.info(f"Added order item to order: {order_item}")
-
-        await db.commit()
-        await db.refresh(new_order)
-        return new_order
+            await db.commit()
+            await db.refresh(new_order)
+            return new_order
 
     except HTTPException:
         raise
@@ -169,82 +236,4 @@ async def get_order_by_id(db: AsyncSession, order_id: int) -> OrderResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while retrieving the order: {str(e)}"
-        )
-    
-async def checkout_order_from_cart(db: AsyncSession, user_id: int, cart_items_id: list[int], order_data: OrderBaseCart):
-    try:
-        result = await db.execute(
-            select(CartItem)
-            .options(selectinload(CartItem.product), selectinload(CartItem.variant), selectinload(CartItem.cart))
-            .where(
-                CartItem.id.in_(cart_items_id),
-                CartItem.cart.has(Cart.user_id == user_id)
-            )
-        )
-        cart_items = result.scalars().all()
-        if not cart_items:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No valid cart items found for checkout."
-            )
-
-        items_by_seller = {}
-        for item in cart_items:
-            seller_id = item.product.seller_id
-            if seller_id not in items_by_seller:
-                items_by_seller[seller_id] = []
-            items_by_seller[seller_id].append(item)
-
-        created_orders = []
-
-        for seller_id, items in items_by_seller.items():
-            order_items = []
-            total_amount = 0.0
-
-            for item in items:
-                product = item.product
-                variant = item.variant
-
-                price = variant.price if variant else product.base_price
-                total_amount += price * item.quantity
-
-                order_items.append(
-                    OrderItemCreate(
-                        product_id=item.product_id,
-                        variant_id=item.variant_id,
-                        quantity=item.quantity,
-                        price=price
-                    )
-                )
-                logger.info(f"Prepared order item for product ID {item.product_id} with quantity {item.quantity} and price {price}")
-
-            order_create_data = OrderCreate(
-                seller_id=seller_id,
-                shipping_address=order_data.shipping_address,
-                payment_method=order_data.payment_method,
-                items=order_items,
-                total_amount=total_amount
-            )
-
-            new_order = await create_new_order(db, order_create_data, user_id)
-            created_orders.append(new_order)
-            logger.info(f"Created order ID {new_order.id} for seller ID {seller_id} with total amount {total_amount}")
-
-            for item in items:
-                await db.delete(item)
-                logger.info(f"Removed cart item ID {item.id} after checkout.")
-
-        await db.commit()
-        logger.info(f"User {user_id} checked out {len(cart_items)} items across {len(created_orders)} sellers.")
-
-        return created_orders
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        await db.rollback()
-        logger.error(f"Error during multi-seller checkout for user_id {user_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during checkout."
         )

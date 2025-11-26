@@ -1,8 +1,9 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pyparsing import Optional
+from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.orders import OrderBaseCart, OrderCreateCart, OrderCreate
-from services.orders import checkout_order_from_cart, get_orders_by_user, create_new_order, get_order_by_id
+from services.orders import get_orders_by_user, create_new_order, get_order_by_id
 from dependencies.auth import current_user
 from dependencies.database import get_db
 from dependencies.limiter import limiter
@@ -14,7 +15,7 @@ router = APIRouter()
 async def get_user_orders(
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: int = Depends(current_user)
+    current_user = Depends(current_user)
 ):
     orders = await get_orders_by_user(db, current_user.id)
     return orders
@@ -25,7 +26,7 @@ async def get_order_details(
     request: Request,
     order_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: int = Depends(current_user)
+    current_user = Depends(current_user)
 ):
     if not current_user:
         raise HTTPException(
@@ -46,8 +47,9 @@ async def get_order_details(
 async def checkout_order(
     request: Request,
     order: OrderCreate,
+    cart_items_id: Optional[List[int]] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: int = Depends(current_user)
+    current_user = Depends(current_user)
 ):
     if not current_user:
         raise HTTPException(
@@ -55,23 +57,5 @@ async def checkout_order(
             detail="Authentication required to create an order."
         )
     
-    new_order = await create_new_order(db, order, current_user.id)
-    return new_order
-
-@router.post("/checkout-cart", status_code=status.HTTP_201_CREATED)
-@limiter.limit("5/minute")
-async def checkout_order_from_user_cart(
-    request: Request,
-    cart_items_id: list[int],
-    order: OrderBaseCart,
-    db: AsyncSession = Depends(get_db),
-    current_user: int = Depends(current_user)
-):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required to create an order."
-        )
-    
-    new_order = await checkout_order_from_cart(db, current_user.id, cart_items_id, order)
+    new_order = await create_new_order(db, order, current_user.id, cart_items_id)
     return new_order
