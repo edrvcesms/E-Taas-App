@@ -127,7 +127,7 @@ async def confirm_order_by_id(db: AsyncSession, order_id: int, seller_id: int) -
             )
         
         order.status = "Confirmed"
-        await create_new_notification(db, order.user_id, f"Your order from {order.seller.shop_name} has been confirmed.", role="user")
+        await create_new_notification(db, order.user_id, f"Your order from {order.seller.business_name} has been confirmed.", role="user")
         await db.commit()
         await db.refresh(order)
         logger.info(f"Order ID {order_id} confirmed.")

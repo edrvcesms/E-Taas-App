@@ -6,12 +6,13 @@ from sqlalchemy import select
 from schemas.product import ProductCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct, VariantUpdate
 from collections import defaultdict
 from itertools import product
+from sqlalchemy.orm import selectinload
 from utils.cloudinary import upload_image_to_cloudinary, upload_single_image_to_cloudinary
 from utils.logger import logger
 
 async def get_all_products(db: AsyncSession):
     try: 
-        result = await db.execute(select(Product))
+        result = await db.execute(select(Product).options(selectinload(Product.variants)))
         products = result.scalars().all()
         logger.info(f"Retrieved all products: {products}")
         return products
@@ -29,7 +30,7 @@ async def get_all_products(db: AsyncSession):
 
 async def get_products_by_seller(db: AsyncSession, seller_id: int):
     try:
-        result = await db.execute(select(Product).where(Product.seller_id == seller_id))
+        result = await db.execute(select(Product).options(selectinload(Product.variants)).where(Product.seller_id == seller_id))
         products = result.scalars().all()
         logger.info(f"Retrieved products for seller_id {seller_id}: {products}")
         return products

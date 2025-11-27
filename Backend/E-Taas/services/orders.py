@@ -16,7 +16,7 @@ from utils.logger import logger
 
 async def get_orders_by_user(db: AsyncSession, user_id: int):
     try:
-        result = await db.execute(select(Order).where(Order.user_id == user_id))
+        result = await db.execute(select(Order).options(selectinload(Order.seller)).where(Order.user_id == user_id))
         orders = result.scalars().all()
         logger.info(f"Retrieved orders for user_id {user_id}: {orders}")
         if not orders:

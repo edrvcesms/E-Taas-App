@@ -48,7 +48,7 @@ async def send_shipping_link_endpoint(
             detail="Only sellers can send shipping links."
         )
     
-    response = await send_shipping_link(db, order_id, shipping_link, current_user.id)
+    response = await send_shipping_link(db, order_id, shipping_link, current_user.sellers[0].id)
     return response
 
 
