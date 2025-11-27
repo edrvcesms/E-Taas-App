@@ -9,6 +9,7 @@ from models.cart import Cart, CartItem
 from models.products import Product, ProductVariant
 from schemas.orders import OrderCreate, OrderResponse, OrderItemResponse, OrderItemCreate
 from utils.reference import generate_order_code
+from services.notification import create_new_notification
 from datetime import datetime
 from utils.logger import logger
 
@@ -197,7 +198,9 @@ async def create_new_order(db: AsyncSession, order_data: OrderCreate, user_id: i
 
             await db.commit()
             await db.refresh(new_order)
+            await create_new_notification(db, order_data.seller_id, "New Order Received.")
             return new_order
+        
 
     except HTTPException:
         raise
