@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from models.users import User
 from dependencies.database import get_db
 from core.security import decode_token, is_token_valid
@@ -31,7 +32,7 @@ async def current_user(
                 raise HTTPException(status_code=401, detail="Invalid token payload")
 
             result = await db.execute(
-                select(User).where(User.id == user_id)
+                select(User).options(selectinload(User.sellers)).where(User.id == user_id)
             )
             user = result.scalar_one_or_none()
             if not user:

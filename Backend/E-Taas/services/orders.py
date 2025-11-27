@@ -108,7 +108,7 @@ async def create_new_order(db: AsyncSession, order_data: OrderCreate, user_id: i
 
             for item in order_data.items:
                 logger.info(f"Processing order item: {item}")
-                result = await db.execute(select(Product).where(Product.id == item.product_id))
+                result = await db.execute(select(Product).options(selectinload(Product.seller)).where(Product.id == item.product_id))
                 existing_product = result.scalar_one_or_none()
                 logger.info(f"Retrieved product for order item: {existing_product}")
                 if not existing_product:
@@ -198,7 +198,7 @@ async def create_new_order(db: AsyncSession, order_data: OrderCreate, user_id: i
 
             await db.commit()
             await db.refresh(new_order)
-            await create_new_notification(db, user_id, f"Your order to {new_order.seller_id} has been placed successfully.", role="user")
+            await create_new_notification(db, user_id, f"Your order from {existing_product.seller.business_name} has been placed successfully.", role="user")
             await create_new_notification(db, existing_product.seller_id, "New Order Received.", role="seller")
             return new_order
         

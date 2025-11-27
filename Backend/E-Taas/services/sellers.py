@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from models.sellers import Seller
@@ -107,7 +108,7 @@ async def get_all_orders_by_seller(db: AsyncSession, seller_id: int) -> List[Ord
     
 async def confirm_order_by_id(db: AsyncSession, order_id: int, seller_id: int) -> Order:
     try:
-        result = await db.execute(select(Order).where(Order.id == order_id))
+        result = await db.execute(select(Order).options(selectinload(Order.seller)).where(Order.id == order_id))
         order = result.scalar_one_or_none()
         if order.seller_id != seller_id:
             raise HTTPException(

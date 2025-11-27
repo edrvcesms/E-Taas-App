@@ -46,7 +46,7 @@ async def create_new_service(
     
     parsed_service_data = ServiceCreate.parse_raw(service_data)
 
-    service = await create_service(parsed_service_data, current_user.id, db)
+    service = await create_service(parsed_service_data, current_user.sellers[0].id, db)
     
     if service_images:
         await upload_service_image(db, service.id, service_images)
