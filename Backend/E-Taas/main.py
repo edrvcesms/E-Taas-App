@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from db.database import engine, Base
-from routers import auth, users, admin, notification, sellers, products, service, cart, orders
+from routers import auth, users, admin, notification, sellers, products, service, cart, orders, chat
 from slowapi.errors import RateLimitExceeded
 from dependencies.limiter import rate_limit_exceeded_handler, limiter
 from utils.logger import logger
@@ -48,6 +48,8 @@ app.include_router(products.router, prefix="/v1/api/products", tags=["products"]
 app.include_router(service.router, prefix="/v1/api/services", tags=["services"])
 app.include_router(cart.router, prefix="/v1/api/cart", tags=["cart"])
 app.include_router(orders.router, prefix="/v1/api/orders", tags=["orders"])
+app.include_router(chat.router, prefix="/v1/api/chat", tags=["chat"])
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
