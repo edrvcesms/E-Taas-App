@@ -40,13 +40,4 @@ async def post_message(
     
     parsed_data = MessageCreate.parse_raw(message)
 
-    current_id = current_user.id
-    if current_user.is_seller:
-        current_id = current_user.sellers[0].id
-
-    if current_user.is_seller:
-        parsed_data.sender_type = "seller"
-    else:
-        parsed_data.sender_type = "user"
-
-    return await send_new_message(db, parsed_data, current_id, images, conversation_id)
+    return await send_new_message(db, parsed_data, current_user.id, images, conversation_id)

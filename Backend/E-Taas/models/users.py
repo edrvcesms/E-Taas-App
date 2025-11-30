@@ -22,5 +22,6 @@ class User(Base):
     orders = relationship("Order", back_populates="user")
     cart = relationship("Cart", back_populates="user", uselist=False)
     notifications = relationship("Notification", back_populates="user")
-    conversations = relationship("Conversation", back_populates="user")
+    sent_conversations = relationship("Conversation", foreign_keys="Conversation.sender_id", back_populates="sender")
+    received_conversations = relationship("Conversation", foreign_keys="Conversation.receiver_id", back_populates="receiver")
 

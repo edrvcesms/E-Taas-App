@@ -7,12 +7,12 @@ class Conversation(Base):
     __tablename__ = 'conversations'
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    seller_id = Column(Integer, ForeignKey('sellers.id'), nullable=False)
+    sender_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    receiver_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     started_at = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User", back_populates="conversations")
-    seller = relationship("Seller", back_populates="conversations")
+    sender = relationship("User", foreign_keys=[sender_id], back_populates="sent_conversations")
+    receiver = relationship("User", foreign_keys=[receiver_id], back_populates="received_conversations")
     messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
 
 

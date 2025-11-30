@@ -69,6 +69,10 @@ async def register_user(db: AsyncSession, user_register_data):
         try:
             await send_email_verification(db, user_register_data.email)
             logger.info(f"Email verification sent to: {user_register_data.email}")
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"message": "An OTP has been sent to your email for verification."}
+            )
 
         except Exception as e:
             logger.error(f"Error sending email verification during registration: {e}")

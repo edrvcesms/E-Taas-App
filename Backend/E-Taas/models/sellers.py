@@ -22,4 +22,3 @@ class Seller(Base):
     orders = relationship("Order", back_populates="seller")
     service_inquiries = relationship("ServiceInquiry", back_populates="seller")
     notifications = relationship("Notification", back_populates="seller")
-    conversations = relationship("Conversation", back_populates="seller")

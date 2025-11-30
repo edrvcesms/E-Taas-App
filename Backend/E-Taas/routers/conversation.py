@@ -17,28 +17,23 @@ async def chat_websocket_endpoint(
     try:
         payload = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
         user_id = payload["user_id"]
-        is_seller = payload.get("is_seller", False) 
     except Exception:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    participant_type = "seller" if is_seller else "user"
-    participant_id = payload.get("seller_id") if is_seller else user_id
-
     try:
-        await chat_manager.connect(websocket, participant_type, participant_id)
-
+        await chat_manager.connect(websocket, user_id)
         heartbeat_task = create_task(chat_manager.heartbeat(websocket))
 
         while True:
             try:
                 data = await websocket.receive_text()
-                await chat_manager.send_message(data, participant_type, participant_id)
+                await chat_manager.send_message(data, user_id)
             except WebSocketDisconnect:
                 break
-            except Exception:
+            except Exception as e:
                 break
 
     finally:
         heartbeat_task.cancel()
-        await chat_manager.disconnect(websocket, participant_type, participant_id)
+        await chat_manager.disconnect(websocket, user_id)
