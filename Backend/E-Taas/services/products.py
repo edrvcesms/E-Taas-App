@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import HTTPException, status, UploadFile
 from fastapi.responses import JSONResponse
 from models.products import Product, VariantAttribute, VariantCategory, ProductVariant, variant_attribute_values, ProductImage
@@ -113,7 +114,7 @@ async def add_product_service(db: AsyncSession, product: ProductCreate, seller_i
             detail="Internal server error"
         )
     
-async def add_product_images(db: AsyncSession, product_id: int, images: list[UploadFile]) -> JSONResponse:
+async def add_product_images(db: AsyncSession, product_id: int, images: List[UploadFile]) -> JSONResponse:
     try:
         result = await db.execute(select(ProductImage).where(ProductImage.product_id == product_id))
         product_images = result.scalars().all()
@@ -184,7 +185,7 @@ async def update_product_service(db: AsyncSession, product_id: int, product_upda
 
 
     
-async def add_variant_categories_with_attributes(db: AsyncSession, categories: list[VariantCategoryCreate], product_id: int):
+async def add_variant_categories_with_attributes(db: AsyncSession, categories: List[VariantCategoryCreate], product_id: int):
     try:
         created_categories = []
         for cat_data in categories:
@@ -218,7 +219,7 @@ async def add_variant_categories_with_attributes(db: AsyncSession, categories: l
             detail="An error occurred while adding variant categories."
         )
 
-async def add_product_variants(db: AsyncSession, variants: list[VariantCreate], product_id: int):
+async def add_product_variants(db: AsyncSession, variants: List[VariantCreate], product_id: int):
     try:
         categories_query = await db.execute(
             select(VariantCategory).where(VariantCategory.product_id == product_id)

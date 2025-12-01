@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from services.products import get_product_by_id, get_all_products, add_product_service, add_product_images, update_product_service, add_variant_categories_with_attributes, add_product_variants, update_variant_category_service, update_variant_service, delete_product_service
@@ -34,7 +35,7 @@ async def get_product(
 async def add_product_route(
     request: Request,
     data: str = Form(...),
-    product_images: list[UploadFile] = File(None),
+    product_images: List[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(current_user)
 ):

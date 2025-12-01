@@ -45,9 +45,9 @@ class UpdateVariantCategory(BaseModel):
 
 class ProductFullCreate(BaseModel):
     product: ProductCreate
-    variant_categories: Optional[List[VariantCategoryCreate]] = None
-    variants: Optional[List[VariantCreate]] = None
+    variant_categories: Optional[List[VariantCategoryCreate]] = []
+    variants: Optional[List[VariantCreate]] = []
 
 class ProductFullUpdate(BaseModel):
     product: UpdateProduct
-    variant_categories: Optional[List[UpdateVariantCategory]] = None
+    variant_categories: Optional[List[UpdateVariantCategory]] = []
