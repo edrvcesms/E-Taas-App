@@ -118,10 +118,30 @@ async def send_new_message(db: AsyncSession, message_data: MessageCreate, sender
                         image_url=url["secure_url"]
                     )
                     db.add(message_image)
+                    await db.flush()
             await db.commit()   
         await db.refresh(new_message)
+
+        result = await db.execute(
+            select(Message)
+            .options(selectinload(Message.images))
+            .where(Message.id == new_message.id)
+        )
+        new_message = result.scalar_one_or_none()
+
+        new_message_data = {
+            "id": new_message.id,
+            "conversation_id": new_message.conversation_id,
+            "sender_id": new_message.sender_id,
+            "message": new_message.message,
+            "timestamp": str(new_message.timestamp),
+            "sender_type": new_message.sender_type,
+            "images": [image.image_url for image in new_message.images]
+        }
+
+
         logger.info(f"Sent new message {new_message.id} in conversation {conversation.id}")
-        await chat_manager.send_message(new_message.message, message_data.receiver_id)
+        await chat_manager.send_message(new_message_data, message_data.receiver_id)
         return new_message
     
     except HTTPException: 

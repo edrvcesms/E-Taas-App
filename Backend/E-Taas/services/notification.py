@@ -28,7 +28,15 @@ async def create_new_notification(db: AsyncSession, target_id: int, message: str
         await db.commit()
         await db.refresh(notification)
 
-        await notification_manager.send_message(message, target_id)
+        notification_data = {
+            "id": notification.id,
+            "message": notification.message,
+            "is_read": notification.is_read,
+            "created_at": str(notification.created_at),
+            "role": notification.role
+        }
+
+        await notification_manager.send_message(notification_data, target_id)
 
         logger.info(f"Notification created for user {target_id}: {message}")
         return notification
