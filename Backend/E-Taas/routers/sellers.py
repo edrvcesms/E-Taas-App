@@ -52,7 +52,7 @@ async def send_shipping_link_endpoint(
     return response
 
 
-@router.get("/shop", status_code=status.HTTP_200_OK)
+@router.get("/shop-details", status_code=status.HTTP_200_OK)
 async def get_seller_shop(
     request: Request,
     db: AsyncSession = Depends(get_db),

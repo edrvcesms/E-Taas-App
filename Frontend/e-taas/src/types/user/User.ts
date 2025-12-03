@@ -10,3 +10,12 @@ export interface User {
   is_seller: boolean;
   is_admin: boolean;
 }
+
+export interface UpdateUserData {
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  birthdate?: string;
+  address?: string;
+  contact_number?: string;
+}

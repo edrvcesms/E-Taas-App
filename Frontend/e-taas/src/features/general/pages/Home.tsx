@@ -1,5 +1,5 @@
 import { loginUser } from "../../../services/auth/LoginService";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 
 export const Home: React.FC = () => {
 
