@@ -1,17 +1,6 @@
-interface ProductData {
-  product_name: string;
-  description: string;
-  base_price: number;
-  stock: number;
-  has_variants: boolean;
-  category_id: number;
-  seller_id: number;
-  variant_categories?: VariantCategory[];
-  variants?: VariantData[];
-}
 
 interface VariantData {
-  stock: number;
+  stock: number; 
   price: number;
 }
 
@@ -25,7 +14,17 @@ interface VariantCategory{
   attributes: VariantAttribute[];
 }
 
+interface Product {
+  product_name: string;
+  description: string;
+  base_price: number;
+  stock: number;
+  has_variants: boolean;
+  category_id: number;
+}
 
-export interface AddProductRequest {
-  product: ProductData;
+export interface ProductData {
+  product: Product;
+  variant_categories?: VariantCategory[];
+  variants?: VariantData[];
 }

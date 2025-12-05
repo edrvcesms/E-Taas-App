@@ -1,5 +1,6 @@
 from typing import List, Optional
 from fastapi import HTTPException, status, APIRouter, Depends, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from services.products import get_product_by_id, get_all_products, add_product_service, add_product_images, update_product_service, add_variant_categories_with_attributes, add_product_variants, update_variant_category_service, update_variant_service, delete_product_service, add_image_to_single_variant
 from fastapi import Form, File, UploadFile
@@ -89,9 +90,9 @@ async def add_product_route(
 
         await add_variant_categories_with_attributes(db, data.variant_categories, product.id)
 
-        await add_product_variants(db, data.variants, product.id)
+        variants = await add_product_variants(db, data.variants, product.id)
 
-    return product
+    return {"product": product, "variants": variants if data.product.has_variants else []}
 
 
 

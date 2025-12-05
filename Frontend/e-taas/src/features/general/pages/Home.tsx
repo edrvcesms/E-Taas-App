@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 export const Home: React.FC = () => {
 
-  const email : string = "user1@example.com";
+  const email : string = "user2@example.com";
   const password: string = "string";
 
   useEffect(() => {
