@@ -1,4 +1,5 @@
 import { loginUser } from "../../../services/auth/LoginService";
+import { notificationWebSocket } from "../../../services/websocket/Clients";
 import { useEffect } from "react";
 
 export const Home: React.FC = () => {
@@ -17,6 +18,20 @@ export const Home: React.FC = () => {
     };
 
     performLogin();
+
+    const setupWebSocket = async () => {
+      try {
+        const socket = notificationWebSocket();
+        console.log("Connecting to WebSocket...");
+        socket.onopen = () => {
+          console.log("WebSocket connected.");
+        };
+      } catch (error) {
+        console.error("WebSocket connection error:", error);
+      }
+    };
+
+    setupWebSocket();
   }, []);
 
   return (

@@ -10,7 +10,7 @@ import json
 
 router = APIRouter()
 
-@router.websocket("/ws/conversations")
+@router.websocket("/ws")
 async def chat_websocket_endpoint(websocket: WebSocket):
     heartbeat_task = None 
 

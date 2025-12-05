@@ -11,6 +11,7 @@ router = APIRouter()
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     heartbeat_task = None 
+    user_id = None
 
     try:
         token = websocket.cookies.get("access_token")
@@ -22,6 +23,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         payload = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
         user_id = payload.get("user_id")
+        print ("Decoded user ID from token:", user_id)
 
         if not user_id:
             await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
