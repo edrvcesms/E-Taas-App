@@ -1,5 +1,4 @@
-import { getAllProducts } from "../../../services/products/Products";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { addProduct } from "../../../services/products/ManageProducts";
 import type { ProductData } from "../../../types/products/Products";
 import { addImageToProduct } from "../../../services/products/ManageProducts";
@@ -36,7 +35,7 @@ export const Products: React.FC = () => {
           ]
         }
       ],
-      variants: [{ stock: 50, price: 29.99 }]
+      variants: [{}]
   };
 
 const handleSubmit = async () => {

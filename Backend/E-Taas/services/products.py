@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import HTTPException, status, UploadFile
 from fastapi.responses import JSONResponse
 from models.products import Product, VariantAttribute, VariantCategory, ProductVariant, variant_attribute_values, ProductImage
@@ -220,7 +220,7 @@ async def add_variant_categories_with_attributes(db: AsyncSession, categories: L
             detail="An error occurred while adding variant categories."
         )
 
-async def add_product_variants(db: AsyncSession, variants: List[VariantCreate], product_id: int):
+async def add_product_variants(db: AsyncSession, variants: Optional[List[VariantCreate]], product_id: int):
     try:
         categories_query = await db.execute(
             select(VariantCategory).where(VariantCategory.product_id == product_id)

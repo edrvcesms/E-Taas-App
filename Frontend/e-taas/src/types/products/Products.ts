@@ -26,5 +26,5 @@ interface Product {
 export interface ProductData {
   product: Product;
   variant_categories?: VariantCategory[];
-  variants?: VariantData[];
+  variants?: VariantData[] | [{}];
 }

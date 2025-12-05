@@ -45,9 +45,9 @@ class UpdateVariantCategory(BaseModel):
 
 class ProductFullCreate(BaseModel):
     product: ProductCreate
-    variant_categories: Optional[List[VariantCategoryCreate]] = []
-    variants: Optional[List[VariantCreate]] = []
+    variant_categories: Optional[List[VariantCategoryCreate]] = [{ "category_name": "", "attributes": [{"value": ""}] }]
+    variants: Optional[List[VariantCreate]] = [{ "stock": 0, "price": 0.0 }]
 
 class ProductFullUpdate(BaseModel):
     product: UpdateProduct
-    variant_categories: Optional[List[UpdateVariantCategory]] = []
+    variant_categories: Optional[List[UpdateVariantCategory]] = [{ "id": 0, "category_name": "", "attributes": [{"id": 0, "value": ""}] }]
