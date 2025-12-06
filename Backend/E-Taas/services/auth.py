@@ -1,6 +1,7 @@
 from core.config import settings
 from core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from models.users import User
+from sqlalchemy.orm import selectinload
 from schemas.auth import VerifyEmailOTP
 from sqlalchemy import select
 from fastapi import HTTPException, status, Request
@@ -172,7 +173,7 @@ async def verify_email_otp(db: AsyncSession, verify_data: VerifyEmailOTP):
 async def login_user(db: AsyncSession, user_login_data):
     try:
         logger.info(f"Logging in user with email: {user_login_data.email}")
-        result = await db.execute(select(User).where(User.email == user_login_data.email))
+        result = await db.execute(select(User).options(selectinload(User.seller)).where(User.email == user_login_data.email))
         user = result.scalar_one_or_none()
         logger.info(f"User found: {user}")
         if not user:
@@ -187,6 +188,8 @@ async def login_user(db: AsyncSession, user_login_data):
                 detail="Invalid email or password"
             )
         
+        result = await db.execute(select(User).options(selectinload(User.seller)).where(User.id == user.id))
+        user = result.scalar_one_or_none()
 
         access_token = create_access_token(data={"user_id": user.id})
         refresh_token = create_refresh_token(data={"user_id": user.id})
@@ -196,28 +199,32 @@ async def login_user(db: AsyncSession, user_login_data):
             content={
                 "success": True,
                 "message": "Login successful",
-                "data": {"access_token": access_token, "token_type": "bearer"}
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "middle_name": user.middle_name,
+                    "address": user.address,
+                    "contact_number": user.contact_number,
+                    "is_admin": user.is_admin,
+                    "is_seller": user.is_seller,
+                    "seller_data": {
+                        "id": user.seller.id if user.seller else None,
+                        "business_name": user.seller.business_name if user.seller else None,
+                        "is_verified": user.seller.is_verified if user.seller else None,
+                        "business_address": user.seller.business_address if user.seller else None,
+                        "business_contact": user.seller.business_contact if user.seller else None,
+                        "display_name": user.seller.display_name if user.seller else None,
+                        "owner_address": user.seller.owner_address if user.seller else None
+                    } if user.seller else None
+                }
             }
         )
         logger.info(f"User logged in successfully: {user.email}")
 
-        response.set_cookie(
-            key="access_token",
-            value=access_token,
-            httponly=True,
-            samesite="Lax", # will be changed after deployment
-            secure=False, # will be changed after deployment
-            expires=30 * 60 # 30 minutes in seconds
-        )
-
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            secure=False, # will be changed after deployment
-            samesite="Lax", # will be changed after deployment
-            expires=7 * 24 * 60 * 60 # 7 days in seconds
-        )
+        await set_cookies(response, access_token, refresh_token)
         
         logger.info(f"User logged in successfully: {user.email}")
 
@@ -232,6 +239,25 @@ async def login_user(db: AsyncSession, user_login_data):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected error occurred"
         )
+    
+async def set_cookies(response: JSONResponse, access_token: str, refresh_token: str):
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        samesite="Lax", # will be changed after deployment
+        secure=False, # will be changed after deployment
+        expires=30 * 60 # 30 minutes in seconds
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False, # will be changed after deployment
+        samesite="Lax", # will be changed after deployment
+        expires=7 * 24 * 60 * 60 # 7 days in seconds
+    )
 
 async def token_refresh(request: Request):
     refresh_token = request.cookies.get("refresh_token")

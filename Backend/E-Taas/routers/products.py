@@ -79,7 +79,7 @@ async def add_product_route(
             detail="Only sellers can add products."
         )
 
-    product = await add_product_service(db, data.product, current_user.sellers[0].id)
+    product = await add_product_service(db, data.product, current_user.seller.id)
 
     if data.product.has_variants:
         if not data.variant_categories:

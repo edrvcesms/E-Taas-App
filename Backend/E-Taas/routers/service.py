@@ -62,6 +62,6 @@ async def create_new_service(
         )
     
 
-    service = await create_service(service_data, current_user.sellers[0].id, db)
+    service = await create_service(service_data, current_user.seller.id, db)
         
     return service

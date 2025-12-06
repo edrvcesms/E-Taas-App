@@ -17,7 +17,7 @@ class User(Base):
     is_seller = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
 
-    sellers = relationship("Seller", back_populates="user")
+    seller = relationship("Seller", back_populates="user", uselist=False)
     service_inquiries = relationship("ServiceInquiry", back_populates="user")
     orders = relationship("Order", back_populates="user")
     cart = relationship("Cart", back_populates="user", uselist=False)

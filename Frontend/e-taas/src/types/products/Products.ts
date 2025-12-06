@@ -13,7 +13,6 @@ interface VariantCategoryData{
   attributes: VariantAttribute[];
 }
 
-
 interface UpdateCategoryData {
   id: number;
   category_name: string;
@@ -42,3 +41,4 @@ export interface UpdateProductData {
   product: ProductData;
   variant_categories?: UpdateCategoryData[]
 }
+

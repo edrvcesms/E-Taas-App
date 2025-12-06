@@ -32,7 +32,7 @@ async def current_user(
                 raise HTTPException(status_code=401, detail="Invalid token payload")
 
             result = await db.execute(
-                select(User).options(selectinload(User.sellers)).where(User.id == user_id)
+                select(User).options(selectinload(User.seller)).where(User.id == user_id)
             )
             user = result.scalar_one_or_none()
             if not user:

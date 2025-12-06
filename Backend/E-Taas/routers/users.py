@@ -46,7 +46,7 @@ async def get_user_notifications(
             detail="Not authorized to access notifications"
         )
     if current_user.is_seller:
-        return await get_notifications_for_user(db, current_user.id, seller_id=current_user.sellers[0].id)
+        return await get_notifications_for_user(db, current_user.id, seller_id=current_user.seller.id)
     
     return await get_notifications_for_user(db, current_user.id)
 

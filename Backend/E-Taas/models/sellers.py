@@ -16,7 +16,7 @@ class Seller(Base):
     followers = Column(Integer, default=0)
     ratings = Column(Float, default=0.00)
 
-    user = relationship("User", back_populates="sellers")
+    user = relationship("User", back_populates="seller")
     products = relationship("Product", back_populates="seller")
     services = relationship("Service", back_populates="seller")
     orders = relationship("Order", back_populates="seller")
