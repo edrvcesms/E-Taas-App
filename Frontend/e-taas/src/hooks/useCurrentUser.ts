@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import type { User } from "../types/user/User";
+import useLocalStorage from "./useLocalStorage";
 
 type CurrentUserState = {
   currentUser: User | null;
@@ -8,13 +9,25 @@ type CurrentUserState = {
   clearCurrentUser: () => void;
 }
 
+
 export const useCurrentUser = create<CurrentUserState>((set) => {
+
+  const [storedUser, setStoredUser] = useLocalStorage<User | null>("currentUser", null);
+
+  const currentUser = storedUser;
+
   return {
-    currentUser: null,
-    setCurrentUser: (user: User | null) => set({ currentUser: user }),
+    currentUser,
+    setCurrentUser: (user: User | null) => {
+      setStoredUser(user);
+      set({ currentUser: user });
+    },
     updateCurrentUser: (userData: Partial<User>) => set((state) => ({
       currentUser: state.currentUser ? { ...state.currentUser, ...userData } : null
     })),
-    clearCurrentUser: () => set({ currentUser: null }),
+    clearCurrentUser: () => {
+      setStoredUser(null);
+      set({ currentUser: null });
+    },
   }
-})
+});
