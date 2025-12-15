@@ -2,8 +2,12 @@ import type { EmailVerificationData } from "../../../types/auth/EmailVerificatio
 import { verifyEmail } from "../../../services/auth/EmailVerificationService";
 import { useForm } from "../../../hooks/useForm";
 import type React from "react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export const VerifyEmailForm: React.FC = () => {
+
+  const navigate = useNavigate();
   const { values, handleChange, reset } = useForm<EmailVerificationData>({
     username: "",
     email: "",
@@ -12,6 +16,13 @@ export const VerifyEmailForm: React.FC = () => {
   });
 
   const storedData = sessionStorage.getItem("registerData");
+
+  useEffect(() => {
+    if (!storedData) {
+      navigate("/register");
+    }
+  }, [navigate, storedData]);
+
   if (storedData) {
     const { username, email, password } = JSON.parse(storedData);
     values.username = username;

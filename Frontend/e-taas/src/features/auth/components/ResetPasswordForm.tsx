@@ -1,6 +1,7 @@
 import { resetPassword } from "../../../services/auth/ResetPassword";
 import { useForm } from "../../../hooks/useForm";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import type { PasswordResetData } from "../../../types/auth/ResetPassword";
 
 interface FormData extends PasswordResetData {
@@ -16,10 +17,16 @@ export const ResetPasswordForm: React.FC = () => {
     confirm_password: "",
   });
 
+  const stored_email = sessionStorage.getItem('verifiedResetEmail');
+
+  useEffect(() => {
+    if (!stored_email) {
+      navigate('/reset-password-verify-otp');
+    }
+  }, [navigate, stored_email]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const stored_email = sessionStorage.getItem("resetEmail");
     if (stored_email) {
       values.email = stored_email;
     }

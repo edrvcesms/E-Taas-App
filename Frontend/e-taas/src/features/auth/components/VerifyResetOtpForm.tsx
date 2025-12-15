@@ -1,5 +1,6 @@
 import { verifyPasswordResetOtp } from '../../../services/auth/ResetPassword';
 import { useForm } from '../../../hooks/useForm';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const VerifyResetOtpForm: React.FC = () => {
@@ -8,15 +9,22 @@ export const VerifyResetOtpForm: React.FC = () => {
   const { values, handleChange, reset } = useForm<{ otp: string }>({
     otp: '',
   });
+  
+  const stored_email = sessionStorage.getItem('resetEmail');
+  useEffect(() => {
+    if (!stored_email) {
+      navigate('/forgot-password');
+    }
+  }, [navigate, stored_email]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const stored_email = sessionStorage.getItem('resetEmail');
       if (!stored_email) {
-        alert('No email found for OTP verification. Please initiate the password reset process again.');
         return;
       }
       await verifyPasswordResetOtp(stored_email, values.otp);
+      sessionStorage.setItem('verifiedResetEmail', stored_email);
       reset();
       navigate('/reset-password');
     } catch (error) {
