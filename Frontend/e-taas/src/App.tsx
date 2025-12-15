@@ -1,17 +1,19 @@
 import { Route, Routes } from "react-router-dom"
 import './index.css'
-import { Home } from "./features/general/pages/Home"
-import { Profile } from "./features/user/pages/Profile"
-import { Products } from "./features/general/pages/Products"
+import { useEffect } from "react"
+import { Register } from "./features/auth/pages/Register"
+import { VerifyOtp } from "./features/auth/pages/VerifyOtp"
+import { useCurrentUser } from "./hooks/useCurrentUser"
+import { Login } from "./features/auth/pages/Login"
 
 function App() {
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/products" element={<Products />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </>
   )

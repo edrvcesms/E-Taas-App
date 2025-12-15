@@ -3,7 +3,6 @@ from sqlalchemy import or_, select
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.notification import Notification
-import logging
 from dependencies.websocket import notification_manager
 from models.users import User
 from utils.logger import logger
