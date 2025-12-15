@@ -2,7 +2,7 @@ from core.config import settings
 from core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from models.users import User
 from sqlalchemy.orm import selectinload
-from schemas.auth import VerifyEmailOTP
+from schemas.auth import VerifyEmailOTP, VerifyResetPasswordOTP
 from sqlalchemy import select
 from fastapi import HTTPException, status, Request
 from fastapi.concurrency import run_in_threadpool
@@ -56,6 +56,30 @@ async def create_admin_user(db: AsyncSession, admin_register_data):
             detail="Error creating admin user"
         )
 
+async def send_email_verification(db: AsyncSession, user_email: str):
+    try:
+        
+        logger.info(f"Sending OTP to email: {user_email}")
+        otp = await send_otp_to_email(user_email, purpose="Email Verification")
+
+        redis_client.setex(f"email_verification_otp:{user_email}", 300, otp)  # OTP valid for 5 minutes
+        logger.info(f"OTP sent to email: {user_email}")
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "OTP sent to email successfully"}
+        )
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error sending OTP to email {user_email}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error sending OTP to email"
+        )
+    
+
 async def register_user(db: AsyncSession, user_register_data):
     try:
         logger.info(f"Registering user with email: {user_register_data.email}")
@@ -90,29 +114,6 @@ async def register_user(db: AsyncSession, user_register_data):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected error occurred"
-        )
-    
-async def send_email_verification(db: AsyncSession, user_email: str):
-    try:
-        
-        logger.info(f"Sending OTP to email: {user_email}")
-        otp = await send_otp_to_email(user_email)
-
-        redis_client.setex(f"email_verification_otp:{user_email}", 300, otp)  # OTP valid for 5 minutes
-        logger.info(f"OTP sent to email: {user_email}")
-
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "OTP sent to email successfully"}
-        )
-    except HTTPException:
-        raise
-
-    except Exception as e:
-        logger.error(f"Error sending OTP to email {user_email}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error sending OTP to email"
         )
     
 
@@ -238,6 +239,109 @@ async def login_user(db: AsyncSession, user_login_data):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unexpected error occurred"
+        )
+    
+async def forgot_password(db: AsyncSession, user_email: str):
+    try:
+        logger.info(f"Processing forgot password for email: {user_email}")
+        result = await db.execute(select(User).where(User.email == user_email))
+        user = result.scalar_one_or_none()
+        logger.info(f"User found for forgot password: {user}")
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Email not found"
+            )
+        
+        otp = await send_otp_to_email(user_email, purpose="Reset Password")
+        redis_client.setex(f"password_reset_otp:{user_email}", 300, otp)  # OTP valid for 5 minutes
+        logger.info(f"Password reset OTP sent to email: {user_email}")
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "An OTP has been sent to your email for password reset."}
+        )
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error processing forgot password for email {user_email}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error processing forgot password"
+        )
+    
+async def verify_password_reset_otp(db: AsyncSession, verify_data: VerifyResetPasswordOTP):
+    try:
+        if not verify_data.otp:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="OTP is required"
+            )
+        
+        if verify_data.otp != redis_client.get(f"password_reset_otp:{verify_data.email}"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid OTP"
+            )
+        
+        if not redis_client.get(f"password_reset_otp:{verify_data.email}"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="OTP has expired or is invalid"
+            )
+        
+        redis_client.delete(f"password_reset_otp:{verify_data.email}")
+        logger.info(f"Password reset OTP verified and deleted for email: {verify_data.email}")
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "OTP verified successfully"}
+        )
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error verifying password reset OTP for email {verify_data.email}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error verifying OTP"
+        )
+    
+async def reset_password(db: AsyncSession, email: str, new_password: str):
+    try:
+        logger.info(f"Resetting password for email: {email}")
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        logger.info(f"User found for password reset: {user}")
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Email not found"
+            )
+        
+        hashed_password = await run_in_threadpool(hash_password, new_password)
+        user.hashed_password = hashed_password
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+        logger.info(f"Password reset successfully for email: {email}")
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "Password reset successfully"}
+        )
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Error resetting password for email {email}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error resetting password"
         )
     
 async def set_cookies(response: JSONResponse, access_token: str, refresh_token: str):

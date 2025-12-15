@@ -26,3 +26,11 @@ class VerifyEmailOTP(BaseModel):
     email: EmailStr
     password: str
     otp: str
+
+class VerifyResetPasswordOTP(BaseModel):
+    email: EmailStr
+    otp: str
+
+class PasswordReset(BaseModel):
+    email: EmailStr
+    new_password: str
