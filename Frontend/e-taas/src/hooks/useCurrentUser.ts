@@ -49,7 +49,7 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
       try {
         set({ currentUser: JSON.parse(storedUser) });
         return;
-      } catch {
+      } catch(e) {
         localStorage.removeItem(STORAGE_KEY);
       }
     }
@@ -59,6 +59,7 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userDetails));
       set({ currentUser: userDetails });
     } catch {
+      localStorage.removeItem(STORAGE_KEY);
       set({ currentUser: null });
     }
   },
