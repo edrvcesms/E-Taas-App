@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link, mark_order_as_delivered
+from services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link, mark_order_as_delivered, get_delivered_orders_count, get_pending_orders_count, get_recent_inquiries, get_recent_orders, get_revenue, get_total_orders_count, get_shipped_orders_count
 from services.products import get_products_by_seller
 from dependencies.database import get_db
 from dependencies.auth import current_user
@@ -65,6 +65,38 @@ async def get_seller_shop(
         )
     
     return await get_shop_details(db, current_user.id)
+
+@router.get("/dashboard-metrics", status_code=status.HTTP_200_OK)
+async def get_seller_dashboard_metrics(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    if not current_user or not current_user.is_seller:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only sellers can access dashboard metrics."
+        )
+    
+    seller_id = current_user.seller.id
+
+    total_revenue = await get_revenue(db, seller_id)
+    total_orders = await get_total_orders_count(db, seller_id)
+    pending_orders = await get_pending_orders_count(db, seller_id)
+    shipped_orders = await get_shipped_orders_count(db, seller_id)
+    delivered_orders = await get_delivered_orders_count(db, seller_id)
+    recent_orders = await get_recent_orders(db, seller_id)
+    recent_inquiries = await get_recent_inquiries(db, seller_id)
+
+    return {
+        "total_revenue": total_revenue,
+        "total_orders": total_orders,
+        "pending_orders": pending_orders,
+        "shipped_orders": shipped_orders,
+        "delivered_orders": delivered_orders,
+        "recent_orders": recent_orders,
+        "recent_inquiries": recent_inquiries
+    }
 
 
 @router.get("/my-products", status_code=status.HTTP_200_OK)

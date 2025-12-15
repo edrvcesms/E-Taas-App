@@ -9,6 +9,7 @@ from schemas.sellers import SellerCreate
 from typing import List
 from utils.logger import logger
 from models.orders import Order
+from models.services import Service
 from services.notification import create_new_notification
 
 async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: int) -> Seller:
@@ -145,6 +146,142 @@ async def confirm_order_by_id(db: AsyncSession, order_id: int, seller_id: int) -
             detail="Failed to confirm the order."
         ) from e
     
+async def get_revenue(db: AsyncSession, seller_id: int) -> float:
+    try:
+        result = await db.execute(
+            select(Order).where(
+                Order.seller_id == seller_id,
+                Order.status == "Delivered"
+            )
+        )
+        orders = result.scalars().all()
+        total_revenue = sum(order.total_amount for order in orders)
+        logger.info(f"Total revenue for seller_id {seller_id} is {total_revenue}")
+        return total_revenue
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error calculating revenue for seller_id {seller_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate seller revenue."
+        ) from e
+    
+async def get_total_orders_count(db: AsyncSession, seller_id: int) -> int:
+    try:
+        result = await db.execute(
+            select(Order).where(Order.seller_id == seller_id)
+        )
+        orders = result.scalars().all()
+        total_orders = len(orders)
+        logger.info(f"Total orders count for seller_id {seller_id} is {total_orders}")
+        return total_orders
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error calculating total orders count for seller_id {seller_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate total orders count."
+        ) from e
+    
+async def get_pending_orders_count(db: AsyncSession, seller_id: int) -> int:
+    try:
+        result = await db.execute(
+            select(Order).where(
+                Order.seller_id == seller_id,
+                Order.status == "Pending"
+            )
+        )
+        orders = result.scalars().all()
+        pending_orders = len(orders)
+        logger.info(f"Pending orders count for seller_id {seller_id} is {pending_orders}")
+        return pending_orders
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error calculating pending orders count for seller_id {seller_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate pending orders count."
+        ) from e
+    
+
+async def get_shipped_orders_count(db: AsyncSession, seller_id: int) -> int:
+    try:
+        result = await db.execute(
+            select(Order).where(
+                Order.seller_id == seller_id,
+                Order.status == "Shipped"
+            )
+        )
+        orders = result.scalars().all()
+        shipped_orders = len(orders)
+        logger.info(f"Shipped orders count for seller_id {seller_id} is {shipped_orders}")
+        return shipped_orders
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error calculating shipped orders count for seller_id {seller_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate shipped orders count."
+        ) from e
+    
+async def get_delivered_orders_count(db: AsyncSession, seller_id: int) -> int:
+    try:
+        result = await db.execute(
+            select(Order).where(
+                Order.seller_id == seller_id,
+                Order.status == "Delivered"
+            )
+        )
+        orders = result.scalars().all()
+        delivered_orders = len(orders)
+        logger.info(f"Delivered orders count for seller_id {seller_id} is {delivered_orders}")
+        return delivered_orders
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error calculating delivered orders count for seller_id {seller_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate delivered orders count."
+        ) from e
+    
+async def get_recent_orders(db: AsyncSession, seller_id: int, limit: int = 5) -> List[Order]:
+    try:
+        result = await db.execute(
+            select(Order)
+            .where(Order.seller_id == seller_id)
+            .order_by(Order.created_at.desc())
+            .limit(limit)
+        )
+        recent_orders = result.scalars().all()
+        logger.info(f"Fetched {len(recent_orders)} recent orders for seller_id {seller_id}")
+        return recent_orders
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error fetching recent orders for seller_id {seller_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch recent orders."
+        ) from e
+
+
 async def send_shipping_link(db: AsyncSession, order_id: int, shipping_link: str, seller_id: int) -> Order:
     try:
         result = await db.execute(select(Order).where(Order.id == order_id))
@@ -221,4 +358,26 @@ async def mark_order_as_delivered(db: AsyncSession, order_id: int, seller_id: in
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to mark the order as delivered."
+        ) from e
+    
+async def get_recent_inquiries(db: AsyncSession, seller_id: int, limit: int = 5):
+    try:
+        result = await db.execute(
+            select(Service)
+            .where(Service.seller_id == seller_id)
+            .order_by(Service.created_at.desc())
+            .limit(limit)
+        )
+        recent_inquiries = result.scalars().all()
+        logger.info(f"Fetched {len(recent_inquiries)} recent inquiries for seller_id {seller_id}")
+        return recent_inquiries
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error fetching recent inquiries for seller_id {seller_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch recent inquiries."
         ) from e

@@ -294,4 +294,26 @@ async def token_refresh(request: Request):
     
     return response
 
+async def refresh_token_for_mobile(token: str):
+    payload = decode_token(token, settings.SECRET_KEY, settings.ALGORITHM)
+    
+    if not payload or payload.get("type") != "refresh":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+    
+    
+    user_id = payload.get("user_id")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token payload"
+        )
+    
+    new_access_token = create_access_token({"user_id": user_id})
+
+    return {
+        "access_token": new_access_token,
+        "token_type": "bearer"
+    }
+
+
    

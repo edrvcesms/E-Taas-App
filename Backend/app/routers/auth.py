@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from dependencies.database import get_db
-from services.auth import register_user, login_user, send_email_verification, token_refresh, verify_email_otp
+from services.auth import refresh_token_for_mobile, register_user, login_user, send_email_verification, token_refresh, verify_email_otp
 from schemas.auth import UserRegister, UserLogin, VerifyEmailOTP
 from models.users import User
 from dependencies.limiter import limiter
@@ -44,3 +44,12 @@ async def refresh_token(
 ):
     """Refresh access token using a valid refresh token."""
     return await token_refresh(request)
+
+@router.post("/token-refresh-mobile")
+@limiter.limit("15/minute")
+async def refresh_token_mobile(
+    request: Request,
+    token: str
+):
+    """Refresh access token using a valid refresh token for mobile clients."""
+    return await refresh_token_for_mobile(token)
