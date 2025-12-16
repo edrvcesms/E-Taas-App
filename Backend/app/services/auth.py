@@ -179,8 +179,8 @@ async def login_user(db: AsyncSession, user_login_data):
         logger.info(f"User found: {user}")
         if not user:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Account does not exist"
             )
 
         if not await run_in_threadpool(verify_password, user_login_data.password, user.hashed_password):
@@ -241,6 +241,29 @@ async def login_user(db: AsyncSession, user_login_data):
             detail="Unexpected error occurred"
         )
     
+async def get_current_user_by_token(db: AsyncSession, token: str):
+    try:
+        logger.info("Getting current user by token")
+        jwt_payload = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
+
+        if jwt_payload and jwt_payload.get("type") == "access":
+            user_id = jwt_payload.get("user_id")
+            if not user_id:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+
+            result = await db.execute(
+                select(User).options(selectinload(User.seller)).where(User.id == user_id)
+            )
+            user = result.scalar_one_or_none()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            logger.info(f"Current user retrieved successfully: {user.email}")
+            return user
+    except Exception as e:
+        logger.warning(f"JWT token verification failed: {e}")
+
+    raise HTTPException(status_code=401, detail="Invalid token")
+
 async def forgot_password(db: AsyncSession, user_email: str):
     try:
         logger.info(f"Processing forgot password for email: {user_email}")

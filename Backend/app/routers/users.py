@@ -12,8 +12,25 @@ from dependencies.database import get_db
 from services.users import get_user_by_id, update_user_details, delete_user, logout_user
 from services.notification import get_notifications_for_user
 from dependencies.limiter import limiter
+from services.auth import get_current_user_by_token
 
 router = APIRouter()
+
+@router.get("/user-details", response_model=UserBase)
+@limiter.limit("20/minute")
+async def get_current_user(
+    request: Request,
+    token: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Get current user details using access token."""
+    user = await get_current_user_by_token(db, token)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user
 
 @router.get("/details", response_model=UserBase)
 @limiter.limit("20/minute")

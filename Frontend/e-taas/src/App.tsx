@@ -9,22 +9,33 @@ import { Login } from "./features/auth/pages/Login"
 import { useCurrentUser } from "./hooks/useCurrentUser"
 import { useEffect } from "react"
 import { Home } from "./features/general/pages/Home"
+import { refreshToken } from "./services/auth/Token"
+
 function App() {
 
   const navigate = useNavigate();
 
-  const { checkStoredUser } = useCurrentUser();
+  const { currentUser, checkStoredUser } = useCurrentUser();
 
   useEffect(() => {
-    const verifyUser = async () => {
+    const isAuthenticated = async () => {
       await checkStoredUser();
       const storedUser = localStorage.getItem("currentUser");
       if (!storedUser) {
-        navigate("/login");
+        try {
+          await refreshToken();
+          await checkStoredUser();
+        } catch {
+          console.log("No valid session found");
+        }
       }
     };
-    verifyUser();
+    isAuthenticated();
   }, [checkStoredUser, navigate]);
+
+  useEffect(() => {
+  if (currentUser === null) navigate("/login");
+}, [currentUser, navigate]);
 
   return (
     <>
