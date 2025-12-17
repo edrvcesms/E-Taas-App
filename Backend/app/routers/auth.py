@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from dependencies.database import get_db
 from services.auth import refresh_token_for_mobile, register_user, login_user, token_refresh, verify_email_otp, reset_password, forgot_password, verify_password_reset_otp
-from schemas.auth import UserRegister, UserLogin, VerifyEmailOTP, VerifyResetPasswordOTP, PasswordReset
+from schemas.auth import UserRegister, UserLogin, VerifyEmailOTP, VerifyResetPasswordOTP, PasswordReset, ForgotPasswordRequest
 from dependencies.limiter import limiter
 
 
@@ -40,7 +40,7 @@ async def login(
 @limiter.limit("5/minute")
 async def forgot_password_endpoint(
     request: Request,
-    email: str,
+    email: ForgotPasswordRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """Initiate the password reset process by sending an OTP to the user's email."""

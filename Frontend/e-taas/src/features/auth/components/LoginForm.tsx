@@ -27,6 +27,8 @@ export const LoginForm: React.FC = () => {
     }
   };
 
+  console.log("Current User in LoginForm:", currentUser);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">

@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link, mark_order_as_delivered, get_delivered_orders_count, get_pending_orders_count, get_recent_inquiries, get_recent_orders, get_revenue, get_total_orders_count, get_shipped_orders_count
+from services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link, mark_order_as_delivered, get_delivered_orders_count, get_pending_orders_count, get_recent_inquiries, get_recent_orders, get_revenue, get_total_orders_count, get_shipped_orders_count, switch_role
 from services.products import get_products_by_seller
 from dependencies.database import get_db
 from dependencies.auth import current_user
-from schemas.sellers import SellerCreate
+from schemas.sellers import SellerCreate, SwitchRoleRequest
 from dependencies.limiter import limiter
 from models.users import User
 
@@ -33,6 +33,22 @@ async def apply_as_seller(
     
     
     return await become_a_seller(db, seller_data, current_user.id)
+
+@router.put("/switch-role", status_code=status.HTTP_200_OK)
+async def switch_seller_role(
+    request: Request,
+    switch_role_request: SwitchRoleRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    """Endpoint for sellers to switch between buyer and seller roles."""
+    if not current_user or not current_user.is_seller:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only sellers can switch roles."
+        )
+    
+    return await switch_role(db, current_user.id, switch_role_request)
 
 @router.post("/send-shipping-link/{order_id}", status_code=status.HTTP_200_OK)
 async def send_shipping_link_endpoint(

@@ -2,7 +2,7 @@ from core.config import settings
 from core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from models.users import User
 from sqlalchemy.orm import selectinload
-from schemas.auth import VerifyEmailOTP, VerifyResetPasswordOTP
+from schemas.auth import VerifyEmailOTP, VerifyResetPasswordOTP, ForgotPasswordRequest
 from sqlalchemy import select
 from fastapi import HTTPException, status, Request
 from fastapi.concurrency import run_in_threadpool
@@ -265,10 +265,10 @@ async def get_current_user_by_token(db: AsyncSession, token: str):
 
     raise HTTPException(status_code=401, detail="Invalid token")
 
-async def forgot_password(db: AsyncSession, user_email: str):
+async def forgot_password(db: AsyncSession, forgot_password_data: ForgotPasswordRequest):
     try:
-        logger.info(f"Processing forgot password for email: {user_email}")
-        result = await db.execute(select(User).where(User.email == user_email))
+        logger.info(f"Processing forgot password for email: {forgot_password_data.email}")
+        result = await db.execute(select(User).where(User.email == forgot_password_data.email))
         user = result.scalar_one_or_none()
         logger.info(f"User found for forgot password: {user}")
         if not user:
@@ -277,9 +277,9 @@ async def forgot_password(db: AsyncSession, user_email: str):
                 detail="Email not found"
             )
         
-        otp = await send_otp_to_email(user_email, purpose="Reset Password")
-        redis_client.setex(f"password_reset_otp:{user_email}", 300, otp)  # OTP valid for 5 minutes
-        logger.info(f"Password reset OTP sent to email: {user_email}")
+        otp = await send_otp_to_email(forgot_password_data.email, purpose="Reset Password")
+        redis_client.setex(f"password_reset_otp:{forgot_password_data.email}", 300, otp)  # OTP valid for 5 minutes
+        logger.info(f"Password reset OTP sent to email: {forgot_password_data.email}")
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -290,7 +290,7 @@ async def forgot_password(db: AsyncSession, user_email: str):
         raise
 
     except Exception as e:
-        logger.error(f"Error processing forgot password for email {user_email}: {e}")
+        logger.error(f"Error processing forgot password for email {forgot_password_data.email}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error processing forgot password"

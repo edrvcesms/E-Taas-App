@@ -13,6 +13,7 @@ class Seller(Base):
     display_name = Column(String, nullable=True)
     owner_address = Column(String, nullable=True)
     is_verified = Column(Boolean, default=False)
+    is_seller_mode = Column(Boolean, default=False)
     followers = Column(Integer, default=0)
     ratings = Column(Float, default=0.00)
 

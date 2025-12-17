@@ -34,3 +34,6 @@ class VerifyResetPasswordOTP(BaseModel):
 class PasswordReset(BaseModel):
     email: EmailStr
     new_password: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr

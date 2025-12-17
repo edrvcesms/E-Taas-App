@@ -17,3 +17,6 @@ class PublicSeller(SellerBase):
 
     class Config:
         orm_mode = True
+
+class SwitchRoleRequest(BaseModel):
+    is_seller_mode: bool

@@ -11,6 +11,7 @@ from utils.logger import logger
 from models.orders import Order
 from models.services import Service
 from services.notification import create_new_notification
+from schemas.sellers import SwitchRoleRequest
 
 async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: int) -> Seller:
     try:
@@ -61,7 +62,41 @@ async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: 
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"
         )
-    
+
+async def switch_role(db: AsyncSession, user_id: int, switch_role_request: SwitchRoleRequest) -> Seller:
+    try:
+        seller_result = await db.execute(select(Seller).where(Seller.user_id == user_id))
+        seller = seller_result.scalar_one_or_none()
+
+        if not seller:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Seller not found."
+            )
+        
+        if not seller.is_verified:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Seller is not verified. Cannot switch to seller mode."
+            )
+
+        seller.is_seller_mode = switch_role_request.is_seller_mode
+        await db.commit()
+        await db.refresh(seller)
+
+        return seller
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error in switch_to_seller_mode: {e}")
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+   
 async def get_shop_details(db: AsyncSession, user_id: int) -> Seller:
     try:
         seller_result = await db.execute(select(Seller).where(Seller.user_id == user_id))
