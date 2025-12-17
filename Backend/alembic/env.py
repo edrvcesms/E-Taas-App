@@ -3,7 +3,15 @@ import sys
 from pathlib import Path
 from logging.config import fileConfig
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+current_dir = Path(__file__).resolve().parent  # alembic folder
+backend_dir = current_dir.parent               # Backend folder
+app_dir = backend_dir / "app"                  # app folder
+
+# Add app directory FIRST (so 'core' can be found)
+sys.path.insert(0, str(app_dir))
+# Also add backend directory
+sys.path.insert(0, str(backend_dir))
+# ====================
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection

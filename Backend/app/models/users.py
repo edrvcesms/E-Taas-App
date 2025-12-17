@@ -1,6 +1,6 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
-from app.db.database import Base
+from db.database import Base
 
 class User(Base):
     __tablename__ = 'users'
@@ -17,11 +17,11 @@ class User(Base):
     is_seller = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
 
-    seller = relationship("Seller", back_populates="user", uselist=False)
+    seller = relationship("Seller", back_populates="user", uselist=False, cascade="all, delete-orphan")
     service_inquiries = relationship("ServiceInquiry", back_populates="user")
     orders = relationship("Order", back_populates="user")
-    cart = relationship("Cart", back_populates="user", uselist=False)
+    cart = relationship("Cart", back_populates="user", uselist=False, cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="user")
-    sent_conversations = relationship("Conversation", foreign_keys="Conversation.sender_id", back_populates="sender")
+    sent_conversations = relationship("Conversation", foreign_keys="[Conversation.sender_id]", back_populates="sender")
     received_conversations = relationship("Conversation", foreign_keys="Conversation.receiver_id", back_populates="receiver")
 

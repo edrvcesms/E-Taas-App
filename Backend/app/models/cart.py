@@ -1,6 +1,6 @@
 from sqlalchemy import Column, DateTime, Integer, String, Float, Boolean, ForeignKey
 from datetime import datetime
-from app.db.database import Base
+from db.database import Base
 from sqlalchemy.orm import relationship
 
 class Cart(Base):

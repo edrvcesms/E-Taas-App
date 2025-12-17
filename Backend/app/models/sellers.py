@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
-from app.db.database import Base
+from db.database import Base
 from sqlalchemy.orm import relationship
 
 class Seller(Base):
@@ -18,8 +18,8 @@ class Seller(Base):
     ratings = Column(Float, default=0.00)
 
     user = relationship("User", back_populates="seller")
-    products = relationship("Product", back_populates="seller")
-    services = relationship("Service", back_populates="seller")
+    products = relationship("Product", back_populates="seller", cascade="all, delete-orphan")
+    services = relationship("Service", back_populates="seller", cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="seller")
     service_inquiries = relationship("ServiceInquiry", back_populates="seller")
     notifications = relationship("Notification", back_populates="seller")
