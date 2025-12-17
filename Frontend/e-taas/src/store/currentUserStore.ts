@@ -56,7 +56,8 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
     }
 
     try {
-      let userDetails = await getUserDetails();
+      const userDetails = await getUserDetails();
+      
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userDetails));
       set({ currentUser: userDetails });
     } catch {

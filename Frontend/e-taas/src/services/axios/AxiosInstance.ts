@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance } from "axios";
+import { refreshToken } from "../auth/Token";
 
 export const createApiInstance = (baseUrl: string, withCredentials?: boolean | undefined): AxiosInstance => {
   const instance: AxiosInstance = axios.create({
@@ -11,6 +12,20 @@ export const createApiInstance = (baseUrl: string, withCredentials?: boolean | u
       config.withCredentials = true;
       return config;
     }); 
+
+    instance.interceptors.response.use(response => response, async (error) => {
+      if (error.response && error.response.status === 401) {
+        try {
+          await refreshToken();
+          const originalRequest = error.config;
+          originalRequest._retry = true;
+          return instance(originalRequest);
+        } catch (refreshError) {
+          return Promise.reject(refreshError);
+        }
+      }
+      return Promise.reject(error);
+    });
   }
   return instance;
 };

@@ -200,6 +200,7 @@ async def login_user(db: AsyncSession, user_login_data):
             content={
                 "success": True,
                 "message": "Login successful",
+                "access_token": access_token,
                 "user": {
                     "id": user.id,
                     "username": user.username,

@@ -1,8 +1,9 @@
 import React from "react";
 import type { LoginData } from "../../../types/auth/Login";
 import { useForm } from "../../../hooks/useForm";
-import { useCurrentUser } from "../../../hooks/useCurrentUser";
+import { useCurrentUser } from "../../../store/currentUserStore";
 import { loginUser } from "../../../services/auth/LoginService";
+import { useNavigate } from "react-router-dom";
 
 export const LoginForm: React.FC = () => {
   const { values, handleChange, reset } = useForm<LoginData>({
@@ -10,7 +11,8 @@ export const LoginForm: React.FC = () => {
     password: "",
   });
 
-  const { setCurrentUser } = useCurrentUser();
+  const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useCurrentUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +20,7 @@ export const LoginForm: React.FC = () => {
     try {
       const user = await loginUser(values);
       setCurrentUser(user);
+      navigate("/");
       reset();
     } catch (error) {
       alert("Login failed. Please try again.");

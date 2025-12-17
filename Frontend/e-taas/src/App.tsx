@@ -6,36 +6,33 @@ import { ForgotPassword } from "./features/auth/pages/ForgotPassword"
 import { ResetPassword } from "./features/auth/pages/ResetPassword"
 import { VerifyResetOtp } from "./features/auth/pages/VerifyPasswordOtp"
 import { Login } from "./features/auth/pages/Login"
-import { useCurrentUser } from "./hooks/useCurrentUser"
+import { useCurrentUser } from "./store/currentUserStore"
 import { useEffect } from "react"
 import { Home } from "./features/general/pages/Home"
-import { refreshToken } from "./services/auth/Token"
 
 function App() {
 
   const navigate = useNavigate();
 
-  const { currentUser, checkStoredUser } = useCurrentUser();
+  const currentUser = useCurrentUser((state) => state.currentUser);
+  const checkUser = useCurrentUser((state) => state.checkStoredUser);
+
 
   useEffect(() => {
-    const isAuthenticated = async () => {
-      await checkStoredUser();
-      const storedUser = localStorage.getItem("currentUser");
-      if (!storedUser) {
-        try {
-          await refreshToken();
-          await checkStoredUser();
-        } catch {
-          console.log("No valid session found");
-        }
-      }
-    };
-    isAuthenticated();
-  }, [checkStoredUser, navigate]);
+    const initializeAuth = async () => {
+      checkUser();
+    }
+    initializeAuth();
+  }, []);
 
   useEffect(() => {
-  if (currentUser === null) navigate("/login");
-}, [currentUser, navigate]);
+    if (currentUser) {
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
+  }, [currentUser, navigate]);
+  
 
   return (
     <>
