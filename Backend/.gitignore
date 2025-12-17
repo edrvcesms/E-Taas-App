@@ -5,3 +5,4 @@ instance
 .env
 .env.*
 data.json
+alembic.ini
