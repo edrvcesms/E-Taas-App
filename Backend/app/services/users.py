@@ -2,9 +2,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from fastapi import HTTPException, status, Request
 from fastapi.responses import JSONResponse
-from models.users import User
-from schemas.users import UserUpdate
-from utils.logger import logger
+from app.models.users import User
+from app.schemas.users import UserUpdate
+from app.utils.logger import logger
 
 
 async def get_user_by_id(db: AsyncSession, user_id: int) -> User:

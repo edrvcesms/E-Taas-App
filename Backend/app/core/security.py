@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from datetime import datetime, timedelta
-from core.config import settings
+from app.core.config import settings
 
 JWT_SECRET = settings.SECRET_KEY
 JWT_ALGORITHM = settings.ALGORITHM

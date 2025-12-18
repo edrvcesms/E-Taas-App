@@ -1,16 +1,16 @@
-from core.config import settings
-from core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
-from models.users import User
+from app.core.config import settings
+from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
+from app.models.users import User
 from sqlalchemy.orm import selectinload
-from schemas.auth import VerifyEmailOTP, VerifyResetPasswordOTP, ForgotPasswordRequest
+from app.schemas.auth import VerifyEmailOTP, VerifyResetPasswordOTP, ForgotPasswordRequest
 from sqlalchemy import select
 from fastapi import HTTPException, status, Request
 from fastapi.concurrency import run_in_threadpool
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils.email import send_otp_to_email
-from utils.cache import redis_client
+from app.utils.email import send_otp_to_email
+from app.utils.cache import redis_client
 from fastapi.responses import JSONResponse
-from utils.logger import logger
+from app.utils.logger import logger
 
 
 async def create_admin_user(db: AsyncSession, admin_register_data):

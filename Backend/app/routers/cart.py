@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from dependencies.database import get_db
-from dependencies.auth import current_user
-from dependencies.limiter import limiter
-from services.cart import get_cart_by_user, get_cart_items, add_item_to_cart, remove_item_from_cart, clear_cart, edit_cart_item
-from models.users import User
-from schemas.cart import CartItemBase
+from app.dependencies.database import get_db
+from app.dependencies.auth import current_user
+from app.dependencies.limiter import limiter
+from app.services.cart import get_cart_by_user, get_cart_items, add_item_to_cart, remove_item_from_cart, clear_cart, edit_cart_item
+from app.models.users import User
+from app.schemas.cart import CartItemBase
 
 router = APIRouter()
 

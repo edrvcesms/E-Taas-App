@@ -3,10 +3,10 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from models.users import User
-from dependencies.database import get_db
-from core.security import decode_token, is_token_valid
-from core.config import settings
+from app.models.users import User
+from app.dependencies.database import get_db
+from app.core.security import decode_token, is_token_valid
+from app.core.config import settings
 import logging
 
 logger = logging.getLogger(__name__)

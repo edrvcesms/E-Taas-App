@@ -4,15 +4,15 @@ from sqlalchemy import select
 from typing import List
 from fastapi import HTTPException, status
 from fastapi import APIRouter, Depends, Request
-from dependencies.auth import current_user
-from schemas.users import UserBase, UserUpdate
-from models.users import User
-from models.notification import Notification
-from dependencies.database import get_db
-from services.users import get_user_by_id, update_user_details, delete_user, logout_user
-from services.notification import get_notifications_for_user
-from dependencies.limiter import limiter
-from services.auth import get_current_user_by_token
+from app.dependencies.auth import current_user
+from app.schemas.users import UserBase, UserUpdate
+from app.models.users import User
+from app.models.notification import Notification
+from app.dependencies.database import get_db
+from app.services.users import get_user_by_id, update_user_details, delete_user, logout_user
+from app.services.notification import get_notifications_for_user
+from app.dependencies.limiter import limiter
+from app.services.auth import get_current_user_by_token
 
 router = APIRouter()
 

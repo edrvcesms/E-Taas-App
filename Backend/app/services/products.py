@@ -1,15 +1,15 @@
 from typing import List, Optional
 from fastapi import HTTPException, status, UploadFile
 from fastapi.responses import JSONResponse
-from models.products import Product, VariantAttribute, VariantCategory, ProductVariant, variant_attribute_values, ProductImage
+from app.models.products import Product, VariantAttribute, VariantCategory, ProductVariant, variant_attribute_values, ProductImage
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from schemas.product import ProductCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct, VariantUpdate
+from app.schemas.product import ProductCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct, VariantUpdate
 from collections import defaultdict
 from itertools import product
 from sqlalchemy.orm import selectinload
-from utils.cloudinary import upload_image_to_cloudinary, upload_single_image_to_cloudinary
-from utils.logger import logger
+from app.utils.cloudinary import upload_image_to_cloudinary, upload_single_image_to_cloudinary
+from app.utils.logger import logger
 
 async def get_all_products(db: AsyncSession):
     try: 

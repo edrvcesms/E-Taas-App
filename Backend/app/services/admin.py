@@ -2,13 +2,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from fastapi.responses import JSONResponse
 from fastapi import HTTPException, status
-from models.sellers import Seller
-from models.users import User
-from models.category import ProductCategory, ServiceCategory
-from schemas.category import ProductCategoryCreate, ServiceCategoryCreate
-from schemas.users import UserBase
-from services.notification import create_new_notification
-from utils.logger import logger
+from app.models.sellers import Seller
+from app.models.users import User
+from app.models.category import ProductCategory, ServiceCategory
+from app.schemas.category import ProductCategoryCreate, ServiceCategoryCreate
+from app.schemas.users import UserBase
+from app.services.notification import create_new_notification
+from app.utils.logger import logger
 
 
 async def add_product_category(db: AsyncSession, category: ProductCategoryCreate):

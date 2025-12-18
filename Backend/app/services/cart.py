@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.cart import Cart, CartItem
-from models.products import Product, ProductVariant
-from schemas.cart import CartItemBase
+from app.models.cart import Cart, CartItem
+from app.models.products import Product, ProductVariant
+from app.schemas.cart import CartItemBase
 from sqlalchemy.future import select
-from utils.logger import logger
+from app.utils.logger import logger
 
 async def get_cart_by_user(db: AsyncSession, user_id: int) -> Cart:
 

@@ -3,15 +3,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
-from models.sellers import Seller
+from app.models.sellers import Seller
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas.sellers import SellerCreate
+from app.schemas.sellers import SellerCreate
 from typing import List
-from utils.logger import logger
-from models.orders import Order
-from models.services import Service
-from services.notification import create_new_notification
-from schemas.sellers import SwitchRoleRequest
+from app.utils.logger import logger
+from app.models.orders import Order
+from app.models.services import Service
+from app.services.notification import create_new_notification
+from app.schemas.sellers import SwitchRoleRequest
 
 async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: int) -> Seller:
     try:

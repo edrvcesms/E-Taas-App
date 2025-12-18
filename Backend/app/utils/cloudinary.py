@@ -1,4 +1,4 @@
-from core.cloudinary import cloudinary
+from app.core.cloudinary import cloudinary
 from cloudinary.uploader import upload
 from fastapi import UploadFile
 from typing import List

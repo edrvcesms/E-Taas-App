@@ -2,18 +2,17 @@ from fastapi import FastAPI
 from fastapi.requests import Request
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from db.database import engine, Base
-from routers import auth, users, admin, notification, sellers, products, service, cart, orders, chat, conversation
+from app.db.database import engine, Base
+from app.routers import auth, users, admin, notification, sellers, products, service, cart, orders, chat, conversation
 from slowapi.errors import RateLimitExceeded
-from dependencies.limiter import rate_limit_exceeded_handler, limiter
-from utils.logger import logger
+from app.dependencies.limiter import rate_limit_exceeded_handler, limiter
+from app.utils.logger import logger
 
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
         logger.info("Application startup complete.")
     yield
     logger.info("Shutting down application.")

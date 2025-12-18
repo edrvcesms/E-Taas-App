@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
-from db.database import Base
+from app.db.database import Base
 from sqlalchemy.orm import relationship
 
 class Seller(Base):

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Query, UploadFile, WebSocket, Depends, status, Form, WebSocketDisconnect
-from models.users import User
+from app.models.users import User
 from sqlalchemy.ext.asyncio import AsyncSession
-from dependencies.database import get_db
-from services.chat import get_conversations_for_user, get_messages_for_conversation, send_new_message
+from app.dependencies.database import get_db
+from app.services.chat import get_conversations_for_user, get_messages_for_conversation, send_new_message
 from typing import List, Optional
-from schemas.chat import MessageCreate
-from dependencies.websocket import chat_manager
-from dependencies.auth import current_user
+from app.schemas.chat import MessageCreate
+from app.dependencies.websocket import chat_manager
+from app.dependencies.auth import current_user
 from asyncio import create_task
 
 

@@ -1,12 +1,12 @@
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link, mark_order_as_delivered, get_delivered_orders_count, get_pending_orders_count, get_recent_inquiries, get_recent_orders, get_revenue, get_total_orders_count, get_shipped_orders_count, switch_role
-from services.products import get_products_by_seller
-from dependencies.database import get_db
-from dependencies.auth import current_user
-from schemas.sellers import SellerCreate, SwitchRoleRequest
-from dependencies.limiter import limiter
-from models.users import User
+from app.services.sellers import become_a_seller, get_shop_details, get_all_orders_by_seller, confirm_order_by_id, send_shipping_link, mark_order_as_delivered, get_delivered_orders_count, get_pending_orders_count, get_recent_inquiries, get_recent_orders, get_revenue, get_total_orders_count, get_shipped_orders_count, switch_role
+from app.services.products import get_products_by_seller
+from app.dependencies.database import get_db
+from app.dependencies.auth import current_user
+from app.schemas.sellers import SellerCreate, SwitchRoleRequest
+from app.dependencies.limiter import limiter
+from app.models.users import User
 
 router = APIRouter()
 

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, status, WebSocket, WebSocketDisconnect
-from dependencies.auth import decode_token
-from core.config import settings
-from dependencies.websocket import notification_manager
+from app.dependencies.auth import decode_token
+from app.core.config import settings
+from app.dependencies.websocket import notification_manager
 from asyncio import create_task
 import json
-from utils.logger import logger
+from app.utils.logger import logger
 
 router = APIRouter()
 

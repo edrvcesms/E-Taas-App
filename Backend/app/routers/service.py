@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Request, status, Depends, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
-from dependencies.database import get_db
-from services.service import get_all_services, upload_service_image, get_service_by_id, create_service
-from schemas.service import ServiceCreate
-from dependencies.auth import current_user
-from models.users import User
-from dependencies.limiter import limiter
+from app.dependencies.database import get_db
+from app.services.service import get_all_services, upload_service_image, get_service_by_id, create_service
+from app.schemas.service import ServiceCreate
+from app.dependencies.auth import current_user
+from app.models.users import User
+from app.dependencies.limiter import limiter
 
 router = APIRouter()
 

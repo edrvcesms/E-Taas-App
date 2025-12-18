@@ -1,13 +1,13 @@
 from fastapi import HTTPException, status, UploadFile
-from dependencies.websocket import chat_manager
+from app.dependencies.websocket import chat_manager
 from sqlalchemy import or_, select
 from sqlalchemy.orm import selectinload
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.conversation import Conversation, MessageImage, Message
-from utils.logger import logger
-from utils.cloudinary import upload_image_to_cloudinary
-from schemas.chat import MessageCreate
+from app.models.conversation import Conversation, MessageImage, Message
+from app.utils.logger import logger
+from app.utils.cloudinary import upload_image_to_cloudinary
+from app.schemas.chat import MessageCreate
 
 async def get_conversations_for_user(db: AsyncSession, user_id: int) -> List[Conversation]:
     try:

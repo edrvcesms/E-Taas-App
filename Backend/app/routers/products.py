@@ -2,13 +2,13 @@ from typing import List, Optional
 from fastapi import HTTPException, status, APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.products import get_product_by_id, get_all_products, add_product_service, add_product_images, update_product_service, add_variant_categories_with_attributes, add_product_variants, update_variant_category_service, update_variant_service, delete_product_service, add_image_to_single_variant
+from app.services.products import get_product_by_id, get_all_products, add_product_service, add_product_images, update_product_service, add_variant_categories_with_attributes, add_product_variants, update_variant_category_service, update_variant_service, delete_product_service, add_image_to_single_variant
 from fastapi import Form, File, UploadFile
-from models.users import User
-from dependencies.database import get_db
-from dependencies.auth import current_user
-from dependencies.limiter import limiter
-from schemas.product import ProductFullCreate, ProductFullUpdate, VariantUpdate
+from app.models.users import User
+from app.dependencies.database import get_db
+from app.dependencies.auth import current_user
+from app.dependencies.limiter import limiter
+from app.schemas.product import ProductFullCreate, ProductFullUpdate, VariantUpdate
 
 router = APIRouter()
 

@@ -2,10 +2,10 @@ from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.notification import Notification
-from dependencies.websocket import notification_manager
-from models.users import User
-from utils.logger import logger
+from app.models.notification import Notification
+from app.dependencies.websocket import notification_manager
+from app.models.users import User
+from app.utils.logger import logger
 
 
 async def create_new_notification(db: AsyncSession, target_id: int, message: str, role: str) -> Notification:

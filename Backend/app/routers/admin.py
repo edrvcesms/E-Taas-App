@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, status, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from dependencies.database import get_db
-from dependencies.auth import current_user
-from services.admin import add_product_category, add_service_category, approve_seller, get_sellers_applications, get_all_sellers, get_all_users
-from services.auth import create_admin_user
-from schemas.users import UserBase
-from schemas.auth import AdminRegister
-from schemas.category import ProductCategoryCreate, ServiceCategoryCreate
-from models.users import User
-from dependencies.limiter import limiter
+from app.dependencies.database import get_db
+from app.dependencies.auth import current_user
+from app.services.admin import add_product_category, add_service_category, approve_seller, get_sellers_applications, get_all_sellers, get_all_users
+from app.services.auth import create_admin_user
+from app.schemas.users import UserBase
+from app.schemas.auth import AdminRegister
+from app.schemas.category import ProductCategoryCreate, ServiceCategoryCreate
+from app.models.users import User
+from app.dependencies.limiter import limiter
 
 router = APIRouter()
 

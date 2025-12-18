@@ -1,9 +1,9 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 from asyncio import create_task
-from core.security import decode_token
-from core.config import settings
-from dependencies.websocket import chat_manager
-from utils.logger import logger
+from app.core.security import decode_token
+from app.core.config import settings
+from app.dependencies.websocket import chat_manager
+from app.utils.logger import logger
 import json
 
 

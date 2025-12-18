@@ -1,4 +1,4 @@
-from db.database import AsyncSessionLocal
+from app.db.database import AsyncSessionLocal
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import AsyncGenerator
 

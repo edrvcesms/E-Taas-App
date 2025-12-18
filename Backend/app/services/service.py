@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models.services import Service, ServiceImage
-from schemas.service import ServiceCreate
-from utils.cloudinary import upload_image_to_cloudinary
+from app.models.services import Service, ServiceImage
+from app.schemas.service import ServiceCreate
+from app.utils.cloudinary import upload_image_to_cloudinary
 
 async def get_all_services(db: AsyncSession):
     try:

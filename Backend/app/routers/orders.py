@@ -2,11 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas.orders import OrderCreate, OrderCreateCart
-from services.orders import get_orders_by_user, create_new_order, get_order_by_id, cancel_order_by_id, mark_order_as_received, create_order_from_cart
-from dependencies.auth import current_user
-from dependencies.database import get_db
-from dependencies.limiter import limiter
+from app.schemas.orders import OrderCreate, OrderCreateCart
+from app.services.orders import get_orders_by_user, create_new_order, get_order_by_id, cancel_order_by_id, mark_order_as_received, create_order_from_cart
+from app.dependencies.auth import current_user
+from app.dependencies.database import get_db
+from app.dependencies.limiter import limiter
 
 router = APIRouter()
 
