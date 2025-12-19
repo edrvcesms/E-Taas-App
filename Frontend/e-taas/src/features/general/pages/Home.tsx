@@ -1,5 +1,3 @@
-import { useCurrentUser } from "../../../store/currentUserStore";
-import Footer from "../../../layouts/Footer";
 import { useNavigate } from "react-router-dom";
 import { Award, ShoppingBag, TrendingUp, Users } from "lucide-react";
 import React from "react";
@@ -13,7 +11,7 @@ export const Home: React.FC = () => {
 return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-500/5 to-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/5 to-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>

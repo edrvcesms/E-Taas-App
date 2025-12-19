@@ -12,6 +12,7 @@ export interface ProductDetails {
   images: ProductImage[];
   variants?: VariantDetails[];
   seller: SellerDetails;
+  category: ProductCategory;
 }
 
 export interface ProductImage {
@@ -26,4 +27,9 @@ export interface VariantDetails {
   price: number;
   image_url?: string;
   variant_name: string;
+}
+
+export interface ProductCategory {
+  id: number;
+  category_name: string;
 }

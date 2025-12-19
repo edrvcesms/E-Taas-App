@@ -28,7 +28,6 @@ export const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const currentUser = useCurrentUser((state) => state.currentUser);
   const [searchQuery, setSearchQuery] = useState('');
-  const isLoading = useCurrentUser((state) => state.isLoading);
   const clearCurrentUser = useCurrentUser((state) => state.clearCurrentUser);
   const navigate = useNavigate();
 
@@ -83,7 +82,7 @@ const handleLogout = async () => {
               {currentUser ? (
                 <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity"
+                className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
               >
                 <AccountCircleIcon />
               </button>
@@ -94,7 +93,7 @@ const handleLogout = async () => {
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col z-50">
                   <button
-                    onClick={() => navigate("/profile")}
+                    onClick={() => { navigate("/profile"); setIsProfileOpen(false); }}
                     className="px-4 py-2 text-left hover:bg-gray-100 transition-colors"
                   >
                     Profile

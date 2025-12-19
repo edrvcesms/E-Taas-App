@@ -4,7 +4,7 @@ export const About = () => {
   return (
     <div>
       {/* Header */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-pink-500/5 to-white">
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/5 to-white">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl font-bold text-pink-500 mb-4">About E-TAAS ang Pinay MSMEs</h1>
           <p className="text-gray-700 max-w-xl mx-auto">
@@ -55,7 +55,7 @@ export const About = () => {
           <div className="mb-12">
             <h2 className="text-3xl font-bold text-pink-500 mb-8 text-center">Our Partners</h2>
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-gradient-to-br from-pink-500/5 to-white rounded-2xl p-8 text-center">
+              <div className="bg-linear-to-br from-pink-500/5 to-white rounded-2xl p-8 text-center">
                 <div className="w-24 h-24 bg-pink-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                   <span className="text-white text-4xl font-bold">DTI</span>
                 </div>
@@ -64,7 +64,7 @@ export const About = () => {
                   The primary government agency responsible for the development and promotion of Philippine industries and enterprises.
                 </p>
               </div>
-              <div className="bg-gradient-to-br from-pink-500/5 to-white rounded-2xl p-8 text-center">
+              <div className="bg-linear-to-br from-pink-500/5 to-white rounded-2xl p-8 text-center">
                 <div className="w-24 h-24 bg-pink-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                   <span className="text-white text-2xl font-bold">NATCCO</span>
                 </div>
@@ -81,7 +81,7 @@ export const About = () => {
             <h2 className="text-3xl font-bold text-pink-500 mb-8 text-center">What We Offer</h2>
             <div className="space-y-6">
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center shrink-0">
                   <Users className="w-6 h-6 text-pink-500" />
                 </div>
                 <div>
@@ -90,7 +90,7 @@ export const About = () => {
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center shrink-0">
                   <Award className="w-6 h-6 text-pink-500" />
                 </div>
                 <div>
@@ -99,7 +99,7 @@ export const About = () => {
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center shrink-0">
                   <Target className="w-6 h-6 text-pink-500" />
                 </div>
                 <div>
@@ -108,7 +108,7 @@ export const About = () => {
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-pink-500/10 rounded-full flex items-center justify-center shrink-0">
                   <TrendingUp className="w-6 h-6 text-pink-500" />
                 </div>
                 <div>
@@ -121,13 +121,13 @@ export const About = () => {
 
           {/* Mission & Vision */}
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-pink-500/5 to-white rounded-2xl p-8">
+            <div className="bg-linear-to-br from-pink-500/5 to-white rounded-2xl p-8">
               <h3 className="text-xl font-semibold text-pink-500 mb-4">Our Mission</h3>
               <p className="text-gray-700 leading-relaxed">
                 To empower Filipino women entrepreneurs and MSMEs by providing them with the knowledge, skills, and platform they need to succeed in the digital economy.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-pink-500/5 to-white rounded-2xl p-8">
+            <div className="bg-linear-to-br from-pink-500/5 to-white rounded-2xl p-8">
               <h3 className="text-xl font-semibold text-pink-500 mb-4">Our Vision</h3>
               <p className="text-gray-700 leading-relaxed">
                 A thriving community of digitally empowered Filipino MSMEs, particularly women entrepreneurs, competing successfully in the global marketplace.
