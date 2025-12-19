@@ -5,11 +5,12 @@ from fastapi.responses import JSONResponse
 from app.models.users import User
 from app.schemas.users import UserUpdate
 from app.utils.logger import logger
+from sqlalchemy.orm import selectinload
 
 
-async def get_user_by_id(db: AsyncSession, user_id: int) -> User:
+async def get_user_by_id(db: AsyncSession, user_id: int):
     try:
-        result = await db.execute(select(User).where(User.id == user_id))
+        result = await db.execute(select(User).options(selectinload(User.seller)).where(User.id == user_id))
         user = result.scalar_one_or_none()
         if not user:
             raise HTTPException(
@@ -28,9 +29,9 @@ async def get_user_by_id(db: AsyncSession, user_id: int) -> User:
         )
     
 
-async def update_user_details(db: AsyncSession, user_id: int, user_update_data: UserUpdate) -> User:
+async def update_user_details(db: AsyncSession, user_id: int, user_update_data: UserUpdate):
     try:
-        result = await db.execute(select(User).where(User.id == user_id))
+        result = await db.execute(select(User).options(selectinload(User.seller)).where(User.id == user_id))
         user = result.scalar_one_or_none()
         if not user:
             raise HTTPException(

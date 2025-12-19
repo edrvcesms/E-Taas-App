@@ -255,11 +255,19 @@ async def get_current_user_by_token(db: AsyncSession, token: str):
             result = await db.execute(
                 select(User).options(selectinload(User.seller)).where(User.id == user_id)
             )
+            
             user = result.scalar_one_or_none()
+    
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
+            logger.info(f"user.seller: {user.seller}")
             logger.info(f"Current user retrieved successfully: {user.email}")
+            logger.info(user.seller.business_name)
             return user
+    
+    except HTTPException:
+        raise
+
     except Exception as e:
         logger.warning(f"JWT token verification failed: {e}")
 

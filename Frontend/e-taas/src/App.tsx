@@ -9,6 +9,7 @@ import { Login } from "./features/auth/pages/Login";
 import { Home } from "./features/general/pages/Home";
 import { About } from "./features/general/pages/About";
 import { Products } from "./features/general/pages/Products";
+import { Profile } from "./features/user/pages/Profile";
 import { LoadingIndicator } from "./features/general/components/LoadingIndicator";
 import Services from "./features/general/pages/Services";
 import { MyContextProvider } from "./context/MyContext";
@@ -16,6 +17,7 @@ import { useCurrentUser } from "./store/currentUserStore";
 import { useEffect } from "react";
 import { UserProtectedRoutes } from "./routes/UserProtectedRoutes";
 import { AuthLayout } from "./layouts/AuthLayout";
+import { Navbar } from "./layouts/Navbar";
 
 
 function App() {
@@ -36,13 +38,15 @@ function App() {
 
   return (
     <MyContextProvider>
+      <Navbar />
       <Routes>
         <Route element={<UserProtectedRoutes />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/services" element={<Services />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
+        <Route path="/" element={<Home />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
 
         <Route element={<AuthLayout />}>

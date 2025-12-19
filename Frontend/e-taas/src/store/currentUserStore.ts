@@ -43,9 +43,15 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
   },
 
   clearCurrentUser: () => {
-
-    localStorage.removeItem(STORAGE_KEY);
-    set({ currentUser: null, isLoading: false, isLoggedIn: false });
+    try {
+      set({ isLoading: true });
+      localStorage.removeItem(STORAGE_KEY);
+      set({ currentUser: null, isLoading: false, isLoggedIn: false });
+    } catch (error) {
+      console.error('Error clearing current user:', error);
+    } finally {
+      set({ isLoading: false });
+    }
   },
 
   checkStoredUser: async () => {
