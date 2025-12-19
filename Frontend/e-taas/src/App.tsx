@@ -8,7 +8,7 @@ import { VerifyResetOtp } from "./features/auth/pages/VerifyPasswordOtp";
 import { Login } from "./features/auth/pages/Login";
 import { Home } from "./features/general/pages/Home";
 import { About } from "./features/general/pages/About";
-import { Products } from "./features/general/pages/Products";
+import { ProductsPage } from "./features/general/pages/Products";
 import { Profile } from "./features/user/pages/Profile";
 import { LoadingIndicator } from "./features/general/components/LoadingIndicator";
 import Services from "./features/general/pages/Services";
@@ -18,7 +18,7 @@ import { useEffect } from "react";
 import { UserProtectedRoutes } from "./routes/UserProtectedRoutes";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { Navbar } from "./layouts/Navbar";
-
+import Footer from "./layouts/Footer";
 
 function App() {
   const isLoading = useCurrentUser((state) => state.isLoading);
@@ -45,7 +45,7 @@ function App() {
         </Route>
 
         <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Products />} />
+        <Route path="/products" element={<ProductsPage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
 
@@ -58,6 +58,7 @@ function App() {
           <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
         </Route>
       </Routes>
+      <Footer />
     </MyContextProvider>
   );
 }

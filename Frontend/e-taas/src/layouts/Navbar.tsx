@@ -8,15 +8,15 @@ import { User } from "lucide-react"
 
 
 export function AccountCircleIcon() {
-  return <User className="w-9 h-5 text-white font-bold" />;
-}
+  return <User className="w-9 h-5 text-white font-bold" strokeWidth={3} />;
+}   
 
 export const LoginBtn = () => {
   const navigate = useNavigate();
   return (
     <button
       onClick={() => navigate("/login")}
-      className="px-4 py-2 bg-pink-500 text-white rounded-full hover:opacity-90 transition-opacity cursor-pointer"
+      className="px-4 py-2 bg-pink-500 text-white rounded-full hover:opacity-90 transition-opacity cursor-pointer font-bold"
     >
       Login
     </button>
@@ -52,17 +52,17 @@ const handleLogout = async () => {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center">
-              <span className="text-white">E</span>
+              <span className="text-white font-bold">E</span>
             </div>
-            <span className="text-[#DD5BA3]">E-TAAS</span>
+            <span className="text-[#DD5BA3] font-bold">E-TAAS</span>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a onClick={() => navigate("/")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity">HOME</a>
-            <a onClick={() => navigate("/products")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity">PRODUCTS</a>
-            <a onClick={() => navigate("/services")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity">SERVICES</a>
-            <a onClick={() => navigate("/about")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity">ABOUT US</a>
+            <a onClick={() => navigate("/")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity font-bold">HOME</a>
+            <a onClick={() => navigate("/products")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity font-bold">PRODUCTS</a>
+            <a onClick={() => navigate("/services")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity font-bold">SERVICES</a>
+            <a onClick={() => navigate("/about")} className="text-pink-500 hover:underline hover:cursor-pointer transition-opacity font-bold">ABOUT US</a>
           </div>
 
           {/* Search & Profile */}
@@ -122,17 +122,17 @@ const handleLogout = async () => {
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 space-y-4">
-            <a onClick={() => navigate("/")} className="block text-pink-500 underline">HOME</a>
-            <a onClick={() => navigate("/users/products")} className="block text-pink-500">PRODUCTS</a>
-            <a onClick={() => navigate("/users/services")} className="block text-pink-500">SERVICES</a>
-            <a onClick={() => navigate("/about")} className="block text-pink-500">ABOUT US</a>
+            <a onClick={() => navigate("/")} className="block text-pink-500 underline font-bold">HOME</a>
+            <a onClick={() => navigate("/users/products")} className="block text-pink-500 font-bold">PRODUCTS</a>
+            <a onClick={() => navigate("/users/services")} className="block text-pink-500 font-bold">SERVICES</a>
+            <a onClick={() => navigate("/about")} className="block text-pink-500 font-bold">ABOUT US</a>
             <div className="relative pt-2">
               <input
                 type="text"
                 placeholder="Search Products ..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#DD5BA3]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-[#DD5BA3] font-bold"
               />
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>

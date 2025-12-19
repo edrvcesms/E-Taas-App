@@ -1,89 +1,103 @@
-import React, { useState } from "react";
-import { addProduct } from "../../../services/products/ManageProducts";
-import type { ProductData } from "../../../types/products/Products";
-import { addImageToProduct } from "../../../services/products/ManageProducts";
+import { getAllProducts } from "../../../services/products/Products";
+import { useQuery } from "@tanstack/react-query";
+import { LoadingIndicator } from "../components/LoadingIndicator";
+import type { ProductDetails } from "../../../types/products/Product";
 
-export const Products: React.FC = () => {
+export const ProductsPage: React.FC = () => {
+  const { data, isLoading, isError } = useQuery<ProductDetails[]>({
+    queryKey: ["products"],
+    queryFn: getAllProducts,
+  });
 
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  console.log("Fetched Products Data:", data);
 
-
-
-  const newProduct: ProductData = {
-    product: {
-      product_name: "Sample Product",
-      description: "This is a sample product.",
-      base_price: 29.99,
-      stock: 100,
-      has_variants: true,
-      category_id: 1,
-    }, variant_categories: [
-        {
-          category_name: "Size",
-          attributes: [
-            { value: "Small" },
-            { value: "Medium" },
-            { value: "Large" }
-          ]
-        },
-        {
-          category_name: "Color",
-          attributes: [
-            { value: "Red" },
-            { value: "Blue" },
-            { value: "Green" }
-          ]
-        }
-      ],
-      variants: [{}]
-  };
-
-const handleSubmit = async () => {
-  try {
-    const products = await addProduct(newProduct)
-      if (products && products.product && products.product.id && selectedFiles.length > 0) {
-        const productId = products.product.id
-        const formData = new FormData()
-        selectedFiles.forEach(file => formData.append("images", file))
-      await addImageToProduct(formData, productId)
-      console.log("Product and images added successfully")
-    }
-  } catch (err) {
-    console.error(err)
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingIndicator size={60} />
+      </div>
+    );
   }
-}
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <p className="text-red-600 text-xl mb-2">Error loading products</p>
+          <p className="text-gray-600">Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="text-3xl">Products Page</div>
-        <input
-          type="file"
-          multiple
-          onChange={(e) => {
-            if (!e.target.files) return
-            const incoming = Array.from(e.target.files)
-            setSelectedFiles(prev => [...prev, ...incoming])
-          }}
-        />
+    <div className="min-h-screen bg-gray-100 p-8">
+      <h1 className="text-4xl font-bold text-center mb-8 text-pink-500">Our Products</h1>
+      <div className="space-y-6">
+        {data && data.length > 0 ? (
+          data.map((product) => {
 
-        <div className="mt-2 flex gap-2">
-          {selectedFiles.map((file, idx) => (
-            <img
-              key={idx}
-              src={URL.createObjectURL(file)}
-              alt={file.name}
-              className="w-20 h-20 object-cover rounded"
-            />
-          ))}
-        </div>
 
-        <button
-          onClick={handleSubmit}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Add Product
-        </button>
-      </>
+            return (
+              <div
+                key={product.id}
+                className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md"
+              >
+                <h2 className="text-2xl font-bold mb-2 text-pink-600">{product.product_name}</h2>
+                <p className="text-gray-700 mb-2">
+                  Base Price: ${product.base_price.toFixed(2)}
+                </p>
+                {product.description && (
+                  <p className="text-gray-600 mb-4">{product.description}</p>
+                )}
 
+                {product.variants && product.variants.length > 0 && (
+                  <>
+                    <h3 className="text-xl font-semibold mb-3 mt-6">Available Variants</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {product.variants.map((variant) => (
+                        <div
+                          key={variant.id}
+                          className="border border-gray-200 p-4 rounded-lg hover:shadow-lg transition-shadow"
+                        >
+                          {variant.image_url ? (
+                            <img
+                              src={variant.image_url}
+                              alt={variant.variant_name}
+                              className="w-full h-40 object-cover rounded mb-3"
+                            />
+                          ) : (
+                            <div className="h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+                              No image
+                            </div>
+                          )}
+                          <h4 className="text-lg font-semibold mb-2">{variant.variant_name}</h4>
+                          <p className="text-pink-600 font-bold mb-1">
+                            {variant.price > 0 ? `$${variant.price.toFixed(2)}` : "Price unavailable"}
+                          </p>
+                          <p className="text-gray-600 text-sm">
+                            Stock: {variant.stock > 0 ? variant.stock : "Out of stock"}
+                          </p>
+                          <button
+                            className="w-full mt-3 bg-pink-500 text-white py-2 px-4 rounded hover:bg-pink-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            disabled={variant.stock === 0}
+                          >
+                            {variant.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <div className="flex justify-center items-center h-64">
+            <p className="text-gray-600 text-xl">No products available.</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
-}
+};

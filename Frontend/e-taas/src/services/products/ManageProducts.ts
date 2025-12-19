@@ -1,5 +1,5 @@
 import { productApi } from "../axios/ApiServices";
-import type { ProductData, UpdateProductData, VariantData } from "../../types/products/Products";
+import type { ProductData, UpdateProductData, VariantData } from "../../types/products/ManageProduct";
 
 export const addProduct = async (data: ProductData) => {
   try {
