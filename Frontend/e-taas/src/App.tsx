@@ -1,52 +1,61 @@
-import { Route, Routes, useNavigate } from "react-router-dom"
-import './index.css'
-import { Register } from "./features/auth/pages/Register"
-import { VerifyRegisterOtp } from "./features/auth/pages/VerifyRegisterOtp"
-import { ForgotPassword } from "./features/auth/pages/ForgotPassword"
-import { ResetPassword } from "./features/auth/pages/ResetPassword"
-import { VerifyResetOtp } from "./features/auth/pages/VerifyPasswordOtp"
-import { Login } from "./features/auth/pages/Login"
-import { useCurrentUser } from "./store/currentUserStore"
-import { useEffect } from "react"
-import { Home } from "./features/general/pages/Home"
+import { Route, Routes } from "react-router-dom";
+import "./index.css";
+import { Register } from "./features/auth/pages/Register";
+import { VerifyRegisterOtp } from "./features/auth/pages/VerifyRegisterOtp";
+import { ForgotPassword } from "./features/auth/pages/ForgotPassword";
+import { ResetPassword } from "./features/auth/pages/ResetPassword";
+import { VerifyResetOtp } from "./features/auth/pages/VerifyPasswordOtp";
+import { Login } from "./features/auth/pages/Login";
+import { Home } from "./features/general/pages/Home";
+import { About } from "./features/general/pages/About";
+import { Products } from "./features/general/pages/Products";
+import { LoadingIndicator } from "./features/general/components/LoadingIndicator";
+import Services from "./features/general/pages/Services";
+import { MyContextProvider } from "./context/MyContext";
+import { useCurrentUser } from "./store/currentUserStore";
+import { useEffect } from "react";
+import { UserProtectedRoutes } from "./routes/UserProtectedRoutes";
+import { AuthLayout } from "./layouts/AuthLayout";
+
 
 function App() {
-
-  const navigate = useNavigate();
-
-  const currentUser = useCurrentUser((state) => state.currentUser);
-  const checkUser = useCurrentUser((state) => state.checkStoredUser);
-
+  const isLoading = useCurrentUser((state) => state.isLoading);
+  const checkStoredUser = useCurrentUser((state) => state.checkStoredUser);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      checkUser();
-    }
-    initializeAuth();
-  }, []);
+    checkStoredUser();
+  }, [checkStoredUser]);
 
-  useEffect(() => {
-    if (currentUser) {
-      navigate("/");
-    } else {
-      navigate("/login");
-    }
-  }, [currentUser, navigate]);
-  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingIndicator size={80} />
+      </div>
+    );
+  }
 
   return (
-    <>
+    <MyContextProvider>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-otp" element={<VerifyRegisterOtp />} />
-        <Route path="/reset-password-verify-otp" element={<VerifyResetOtp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/login" element={<Login />} />
+        <Route element={<UserProtectedRoutes />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/services" element={<Services />} />
+        </Route>
+
+        <Route path="/about" element={<About />} />
+
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-register-otp" element={<VerifyRegisterOtp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
+        </Route>
       </Routes>
-    </>
-  )
+    </MyContextProvider>
+  );
 }
 
-export default App
+export default App;

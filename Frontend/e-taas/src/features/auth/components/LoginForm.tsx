@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { LoginData } from "../../../types/auth/Login";
 import { useForm } from "../../../hooks/useForm";
 import { useCurrentUser } from "../../../store/currentUserStore";
 import { loginUser } from "../../../services/auth/LoginService";
 import { useNavigate } from "react-router-dom";
+import { useMyContext } from "../../../context/MyContext";
 
 export const LoginForm: React.FC = () => {
   const { values, handleChange, reset } = useForm<LoginData>({
@@ -12,11 +13,12 @@ export const LoginForm: React.FC = () => {
   });
 
   const navigate = useNavigate();
-  const { currentUser, setCurrentUser } = useCurrentUser();
+  const { setIsLoading } = useMyContext();
+  const { setCurrentUser } = useCurrentUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
       const user = await loginUser(values);
       setCurrentUser(user);
@@ -24,10 +26,10 @@ export const LoginForm: React.FC = () => {
       reset();
     } catch (error) {
       alert("Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  console.log("Current User in LoginForm:", currentUser);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
