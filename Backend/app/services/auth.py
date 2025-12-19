@@ -219,7 +219,10 @@ async def login_user(db: AsyncSession, user_login_data):
                         "business_address": user.seller.business_address if user.seller else None,
                         "business_contact": user.seller.business_contact if user.seller else None,
                         "display_name": user.seller.display_name if user.seller else None,
-                        "owner_address": user.seller.owner_address if user.seller else None
+                        "owner_address": user.seller.owner_address if user.seller else None,
+                        "followers": user.seller.followers if user.seller else None,
+                        "is_verified": user.seller.is_verified if user.seller else None,
+                        "rating": user.seller.rating if user.seller else None,
                     } if user.seller else None
                 }
             }

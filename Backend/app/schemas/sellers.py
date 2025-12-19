@@ -12,6 +12,7 @@ class SellerCreate(SellerBase):
     pass
 
 class PublicSeller(SellerBase):
+    is_verified: bool
     followers: int
     ratings: float
 
