@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import type { LoginData } from "../../../types/auth/Login";
 import { useForm } from "../../../hooks/useForm";
 import { useCurrentUser } from "../../../store/currentUserStore";

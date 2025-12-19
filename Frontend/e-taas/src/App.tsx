@@ -29,7 +29,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <LoadingIndicator size={80} />
+        <LoadingIndicator size={60} />
       </div>
     );
   }
