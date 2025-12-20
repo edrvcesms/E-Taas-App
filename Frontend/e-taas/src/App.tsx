@@ -20,6 +20,7 @@ import { AuthLayout } from "./layouts/AuthLayout";
 import { Navbar } from "./layouts/Navbar";
 import Footer from "./layouts/Footer";
 import ProductDetails from "./features/general/pages/ProductDetails";
+import { SellerApplication } from "./features/user/pages/SellerApplication";
 
 function App() {
   const isLoading = useCurrentUser((state) => state.isLoading);
@@ -43,6 +44,7 @@ function App() {
       <Routes>
         <Route element={<UserProtectedRoutes />}>
           <Route path="/profile" element={<Profile />} />
+          <Route path="/seller-application" element={<SellerApplication />} />
         </Route>
 
         <Route path="/" element={<Home />} />

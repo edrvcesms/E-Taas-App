@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, Check, Share2, Heart, ShoppingCart, Store, Shield, Truck, Package, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProductDetails } from '../../../hooks/useProduct';
@@ -19,6 +19,8 @@ export default function ProductDetails() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const [quantity, setQuantity] = useState(1);
 
   const handlePrevImage = () => {
     if (data?.product?.images) {
@@ -72,36 +74,12 @@ export default function ProductDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <div className="flex gap-2">
-            <button className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer">
-              <Share2 className="w-6 h-6" />
-            </button>
-            <button
-              onClick={() => setIsFavorite(!isFavorite)}
-              className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer"
-            >
-              <Heart
-                className={`w-6 h-6 ${isFavorite ? 'fill-pink-500 text-pink-500' : ''}`}
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Left Column - Product Image and Info */}
           <div className="bg-white rounded-3xl p-6 border border-pink-100">
             {/* Product Image */}
-            <div className="bg-gradient-to-br from-pink-50 to-cyan-50 rounded-2xl p-12 mb-6 flex items-center justify-center relative">
+            <div className="bg-linear-to-br from-pink-50 to-cyan-50 rounded-2xl p-12 mb-6 flex items-center justify-center relative">
               <img
                 src={product.images[currentImageIndex]?.image_url || 'https://placehold.co/600x400/f5f5f5/999999?text=Image+Unavailable&font=inter'}
                 alt={`${product.product_name} - Image ${currentImageIndex + 1}`}
@@ -140,6 +118,14 @@ export default function ProductDetails() {
                   In Stock
                 </div>
               )}
+              <div className="absolute top-4 left-4">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer"
+                >
+                  <ArrowLeft className="w-6 h-6" />
+                </button>
+              </div>
 
               {/* Thumbnail Dots */}
               {product.images.length > 1 && (
@@ -148,9 +134,8 @@ export default function ProductDetails() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition ${
-                        index === currentImageIndex ? 'bg-pink-500 w-6' : 'bg-white/60 hover:bg-white'
-                      }`}
+                      className={`w-2 h-2 rounded-full transition ${index === currentImageIndex ? 'bg-pink-500 w-6' : 'bg-white/60 hover:bg-white'
+                        }`}
                     />
                   ))}
                 </div>
@@ -158,7 +143,22 @@ export default function ProductDetails() {
             </div>
 
             {/* Product Title and Price */}
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.product_name}</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.product_name}</h1>
+              <div className="flex gap-2">
+                <button className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer">
+                  <Share2 className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={() => setIsFavorite(!isFavorite)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer"
+                >
+                  <Heart
+                    className={`w-6 h-6 ${isFavorite ? 'fill-pink-500 text-pink-500' : ''}`}
+                  />
+                </button>
+              </div>
+            </div>
             <p className="text-4xl font-bold text-pink-500 mb-3">₱{product.base_price.toLocaleString()}</p>
 
             <div className="flex items-center gap-3 mb-6">
@@ -217,7 +217,7 @@ export default function ProductDetails() {
               </div>
 
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-linear-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center shrink-0">
                   <span className="text-white text-lg font-bold">{data.product.seller.business_name.charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
@@ -257,13 +257,41 @@ export default function ProductDetails() {
               </ul>
             </div>
 
+            {/* Quantity Selector */}
+            <div className="flex flex-row items-center justify-between bg-white border border-gray-200 rounded-2xl p-5">
+              <h3 className="text-base font-semibold text-gray-900">Quantity</h3>
+              <div className="flex items-center justify-center gap-4">
+                <button
+                  onClick={() => setQuantity((qty) => Math.max(1, qty - 1))}
+                  className="w-10 h-10 bg-gray-100 text-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-300 transition font-bold"
+                >
+                  -
+                </button>
+                <input
+                  type="text"
+                  value={quantity}
+                  min={1}
+                  onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                  className="w-16 text-center text-gray-900 font-medium text-lg border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500"
+                />
+                <button
+                  onClick={() => setQuantity((qty) => qty + 1)}
+                  className="w-10 h-10 bg-gray-100 text-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-300 transition font-bold"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+
+
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-pink-500 text-pink-500 rounded-full font-semibold hover:bg-pink-50 transition cursor-pointer text-sm">
                 <ShoppingCart className="w-5 h-5" />
                 Add to Cart
               </button>
-              <button className="px-4 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-full font-semibold hover:from-pink-600 hover:to-pink-700 transition shadow-lg shadow-pink-500/30 cursor-pointer flex items-center justify-center gap-2 text-sm">
+              <button className="px-4 py-3 bg-linear-to-r from-pink-500 to-pink-600 text-white rounded-full font-semibold hover:from-pink-600 hover:to-pink-700 transition shadow-lg shadow-pink-500/30 cursor-pointer flex items-center justify-center gap-2 text-sm">
                 <CreditCard className="w-5 h-5" />
                 Buy Now
               </button>
