@@ -5,7 +5,6 @@ import { getUserDetails } from "../services/user/UserDetails";
 type CurrentUserState = {
   currentUser: User | null;
   isLoading?: boolean;
-  isLoggedIn?: boolean;
   setCurrentUser: (user: User | null) => void;
   updateCurrentUser: (userData: Partial<User>) => void;
   clearCurrentUser: () => void;
@@ -18,7 +17,6 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
   currentUser: null,
 
   isLoading: true,
-  isLoggedIn: false,
 
   setCurrentUser: (user) => {
     if (!user) {
@@ -28,7 +26,7 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    set({ currentUser: user, isLoading: false, isLoggedIn: true });
+    set({ currentUser: user, isLoading: false });
   },
 
   updateCurrentUser: (userData) => {
@@ -46,7 +44,7 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
     try {
       set({ isLoading: true });
       localStorage.removeItem(STORAGE_KEY);
-      set({ currentUser: null, isLoading: false, isLoggedIn: false });
+      set({ currentUser: null, isLoading: false });
     } catch (error) {
       console.error('Error clearing current user:', error);
     } finally {
@@ -62,18 +60,18 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
 
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
-        set({ currentUser: parsedUser, isLoading: false, isLoggedIn: true });
+        set({ currentUser: parsedUser, isLoading: false });
         return;
       }
 
       const userDetails = await getUserDetails();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userDetails));
-      set({ currentUser: userDetails, isLoading: false, isLoggedIn: true });
+      set({ currentUser: userDetails, isLoading: false });
 
     } catch (error) {
       console.error('Error checking stored user:', error);
       localStorage.removeItem(STORAGE_KEY);
-      set({ currentUser: null, isLoading: false, isLoggedIn: false });
+      set({ currentUser: null, isLoading: false });
     }
   },
 }));

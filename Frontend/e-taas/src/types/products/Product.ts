@@ -1,6 +1,6 @@
 import type { SellerDetails } from "../seller/Seller";
 
-export interface ProductDetails {
+export interface Products {
   id: number;
   product_name: string;
   description?: string;

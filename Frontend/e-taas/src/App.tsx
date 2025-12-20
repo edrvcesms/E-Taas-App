@@ -19,6 +19,7 @@ import { UserProtectedRoutes } from "./routes/UserProtectedRoutes";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { Navbar } from "./layouts/Navbar";
 import Footer from "./layouts/Footer";
+import { ProductDetails } from "./features/general/pages/ProductDetails";
 
 function App() {
   const isLoading = useCurrentUser((state) => state.isLoading);
@@ -46,6 +47,7 @@ function App() {
 
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/products/:productId" element={<ProductDetails />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
 
