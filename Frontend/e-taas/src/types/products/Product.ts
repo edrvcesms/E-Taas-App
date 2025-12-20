@@ -1,6 +1,10 @@
 import type { SellerDetails } from "../seller/Seller";
 
-export interface Products {
+export interface ProductResponse {
+  product: Product;
+}
+
+export interface Product {
   id: number;
   product_name: string;
   description?: string;
@@ -9,10 +13,12 @@ export interface Products {
   has_variants: boolean;
   category_id: number;
   seller_id: number;
-  images: ProductImage[];
-  variants?: VariantDetails[];
-  seller: SellerDetails;
+  created_at: string;
+
   category: ProductCategory;
+  images: ProductImage[];
+  seller: SellerDetails;
+  variants: VariantDetails[];
 }
 
 export interface ProductImage {
@@ -25,8 +31,8 @@ export interface VariantDetails {
   id: number;
   stock: number;
   price: number;
-  image_url?: string;
   variant_name: string;
+  image_url?: string;
 }
 
 export interface ProductCategory {

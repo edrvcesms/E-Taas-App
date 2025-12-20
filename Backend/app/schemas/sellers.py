@@ -15,6 +15,7 @@ class PublicSeller(SellerBase):
     is_verified: bool
     followers: int
     ratings: float
+    is_seller_mode: bool
 
     class Config:
         orm_mode = True

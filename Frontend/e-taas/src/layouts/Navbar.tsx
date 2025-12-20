@@ -9,7 +9,7 @@ import { User } from "lucide-react"
 
 export function AccountCircleIcon() {
   return <User className="w-9 h-5 text-white font-bold" strokeWidth={3} />;
-}   
+}
 
 export const LoginBtn = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export const Navbar = () => {
   const clearCurrentUser = useCurrentUser((state) => state.clearCurrentUser);
   const navigate = useNavigate();
 
-const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
       await logoutUser();
       clearCurrentUser();
@@ -81,11 +81,11 @@ const handleLogout = async () => {
             <div className="relative">
               {currentUser ? (
                 <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
-              >
-                <AccountCircleIcon />
-              </button>
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  <AccountCircleIcon />
+                </button>
               ) : (
                 <LoginBtn />
               )}

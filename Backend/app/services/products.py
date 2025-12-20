@@ -48,7 +48,7 @@ async def get_products_by_seller(db: AsyncSession, seller_id: int):
 
 async def get_product_by_id(db: AsyncSession, product_id: int):
     try:
-        result = await db.execute(select(Product).options(selectinload(Product.variants)).options(selectinload(Product.images)).options(selectinload(Product.category)).where(Product.id == product_id))
+        result = await db.execute(select(Product).options(selectinload(Product.variants)).options(selectinload(Product.images)).options(selectinload(Product.category)).options(selectinload(Product.seller)).where(Product.id == product_id))
         product = result.scalar_one_or_none()
         if not product:
             raise HTTPException(

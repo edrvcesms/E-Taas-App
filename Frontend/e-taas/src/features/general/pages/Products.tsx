@@ -28,7 +28,6 @@ export const ProductsPage: React.FC = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-linear-to-br from-pink-500/5 to-white p-4">
       <h1 className="text-4xl font-bold text-center mb-8 text-pink-500">Our Products</h1>
@@ -41,14 +40,28 @@ export const ProductsPage: React.FC = () => {
                 key={product.id}
                 className="w-2xs p-4 bg-white rounded-2xl shadow-md cursor-pointer hover:shadow-xl transition-shadow duration-300"
               >
-                {product.images && product.images.length > 0 && (
+                {product.images.length === 0 ? (
+                  <img
+                    src="https://placehold.co/600x400/f5f5f5/999999?text=Image+Unavailable&font=inter"
+                    alt="Image Unavailable"
+                    className="
+                      w-full
+                      h-40
+                      object-contain
+                      rounded-xl
+                      mb-4
+                      border
+                      border-gray-200
+                    "
+                  />
+                ) : (
                   <img
                     src={product.images[0].image_url}
                     alt={`${product.product_name} image`}
                     className="
                       w-full
                       h-40
-                      object-cover
+                      object-contain
                       rounded-xl
                       mb-4
                       border

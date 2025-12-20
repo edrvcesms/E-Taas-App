@@ -13,7 +13,7 @@ from app.schemas.product import ProductFullCreate, ProductFullUpdate, VariantUpd
 router = APIRouter()
 
 @router.get("/")
-@limiter.limit("20/minute")
+@limiter.limit("50/minute")
 async def get_products(
     request: Request,
     db: AsyncSession = Depends(get_db)
@@ -22,7 +22,7 @@ async def get_products(
   return await get_all_products(db)
 
 @router.get("/{product_id}")
-@limiter.limit("30/minute")
+@limiter.limit("50/minute")
 async def get_product(
     request: Request,
     product_id: int,
@@ -66,7 +66,7 @@ async def add_images_to_product(
     return await add_product_images(db, product_id, images)
 
 @router.post("/add-product", status_code=status.HTTP_201_CREATED)
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def add_product_route(
     request: Request,
     data: ProductFullCreate,
@@ -97,7 +97,7 @@ async def add_product_route(
 
 
 @router.put("/update-product/{product_id}", status_code=status.HTTP_200_OK)
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def update_product(
     request: Request,
     product_id: int,
@@ -120,7 +120,7 @@ async def update_product(
     return product
 
 @router.put("/update-variant/{variant_id}", status_code=status.HTTP_200_OK)
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def update_variant(
     request: Request,
     variant_id: int,

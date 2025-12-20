@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "../services/products/Products";
-import type { Products } from "../types/products/Product";
+import type { Product } from "../types/products/Product";
 import { getProductById } from "../services/products/Products";
+import type { ProductResponse } from "../types/products/Product";
 
 export const useProduct = () => {
-  const allProductsQuery = useQuery<Products[]>({
+  const allProductsQuery = useQuery<Product[]>({
     queryKey: ["allProducts"],
     queryFn: getAllProducts,
     refetchOnWindowFocus: false,
@@ -14,7 +15,7 @@ export const useProduct = () => {
 }
 
 export const useProductDetails = (productId: number) => {
-  const productDetailsQuery = useQuery<Products>({
+  const productDetailsQuery = useQuery<ProductResponse>({
     queryKey: ["productDetails", productId],
     queryFn: () => getProductById(productId),
     refetchOnWindowFocus: false,

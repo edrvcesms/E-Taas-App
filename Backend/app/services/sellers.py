@@ -74,11 +74,11 @@ async def switch_role(db: AsyncSession, user_id: int, switch_role_request: Switc
                 detail="Seller not found."
             )
         
-        if not seller.is_verified:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Seller is not verified. Cannot switch to seller mode."
-            )
+        # if not seller.is_verified:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_403_FORBIDDEN,
+        #         detail="Seller is not verified. Cannot switch to seller mode."
+        #     )
 
         seller.is_seller_mode = switch_role_request.is_seller_mode
         await db.commit()

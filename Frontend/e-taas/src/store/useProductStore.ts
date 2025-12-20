@@ -1,12 +1,12 @@
 import { create } from 'zustand';
-import type { Products } from '../types/products/Product';
+import type { Product } from '../types/products/Product';
 
 interface ProductStore {
-  products: Products[] | null;
+  products: Product[] | null;
   isLoading?: boolean;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  setProducts: (products: Products[]) => void;
+  setProducts: (products: Product[]) => void;
 }
 
 export const useProductStore = create<ProductStore>((set) => ({
@@ -14,5 +14,5 @@ export const useProductStore = create<ProductStore>((set) => ({
   isLoading: false,
   searchQuery: '',
   setSearchQuery: (query: string) => set({ searchQuery: query }),
-  setProducts: (products: Products[]) => set({ products }),
+  setProducts: (products: Product[]) => set({ products }),
 }));

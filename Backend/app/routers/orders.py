@@ -11,7 +11,7 @@ from app.dependencies.limiter import limiter
 router = APIRouter()
 
 @router.get("/", status_code=status.HTTP_200_OK)
-@limiter.limit("10/minute")
+@limiter.limit("50/minute")
 async def get_user_orders(
     request: Request,
     db: AsyncSession = Depends(get_db),
@@ -21,7 +21,7 @@ async def get_user_orders(
     return orders
 
 @router.get("/{order_id}", status_code=status.HTTP_200_OK)
-@limiter.limit("10/minute")
+@limiter.limit("50/minute")
 async def get_order_details(
     request: Request,
     order_id: int,
@@ -43,7 +43,7 @@ async def get_order_details(
     return order
 
 @router.post("/checkout", status_code=status.HTTP_201_CREATED)
-@limiter.limit("5/minute")
+@limiter.limit("30/minute")
 async def checkout_order(
     request: Request,
     order: OrderCreate,
@@ -60,7 +60,7 @@ async def checkout_order(
     return new_order
 
 @router.post("/checkout-cart", status_code=status.HTTP_201_CREATED)
-@limiter.limit("5/minute")
+@limiter.limit("30/minute")
 async def checkout_order_from_cart(
     request: Request,
     order: OrderCreateCart,
@@ -77,7 +77,7 @@ async def checkout_order_from_cart(
     return new_order
 
 @router.put("/cancel/{order_id}", status_code=status.HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("30/minute")
 async def cancel_order(
     request: Request,
     order_id: int,
@@ -94,7 +94,7 @@ async def cancel_order(
     return canceled_order
 
 @router.put("/mark-received/{order_id}", status_code=status.HTTP_200_OK)
-@limiter.limit("5/minute")
+@limiter.limit("30/minute")
 async def mark_order_received(
     request: Request,
     order_id: int,

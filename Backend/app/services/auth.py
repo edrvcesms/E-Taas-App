@@ -221,7 +221,9 @@ async def login_user(db: AsyncSession, user_login_data):
                         "display_name": user.seller.display_name if user.seller else None,
                         "owner_address": user.seller.owner_address if user.seller else None,
                         "followers": user.seller.followers if user.seller else None,
-                        "is_verified": user.seller.is_verified if user.seller else None
+                        "is_verified": user.seller.is_verified if user.seller else None,
+                        "ratings": user.seller.ratings if user.seller else None,
+                        "is_seller_mode": user.seller.is_seller_mode if user.seller else None
                     } if user.seller else None
                 }
             }

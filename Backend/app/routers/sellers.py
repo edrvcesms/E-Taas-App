@@ -42,11 +42,11 @@ async def switch_seller_role(
     current_user: User = Depends(current_user)
 ):
     """Endpoint for sellers to switch between buyer and seller roles."""
-    if not current_user or not current_user.is_seller:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only sellers can switch roles."
-        )
+    # if not current_user or not current_user.is_seller:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_403_FORBIDDEN,
+    #         detail="Only sellers can switch roles."
+    #     )
     
     return await switch_role(db, current_user.id, switch_role_request)
 
