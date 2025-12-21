@@ -11,7 +11,7 @@ export const Home: React.FC = () => {
 return (
     <div>
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/5 to-white">
+      <section className="py-40 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/5 to-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>

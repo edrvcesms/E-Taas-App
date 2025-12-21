@@ -72,7 +72,7 @@ export default function ProductDetails() {
   const inStock = product.stock > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50  py-40">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-6">

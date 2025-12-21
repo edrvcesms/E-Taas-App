@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
 import React from "react";
+import { useState } from "react";
 
 interface MyContextType {
   isLoading: boolean;
@@ -14,10 +15,10 @@ interface MyContextProviderProps {
 }
 
 export const MyContextProvider = ({ children }: MyContextProviderProps) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
   return (
-    <MyContext.Provider value={{ isLoading, setIsLoading }}>
+    <MyContext.Provider value={{ isLoading, setIsLoading}}>
       {children}
     </MyContext.Provider>
   );

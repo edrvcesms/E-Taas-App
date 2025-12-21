@@ -4,7 +4,7 @@ export const About = () => {
   return (
     <div>
       {/* Header */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/5 to-white">
+      <section className="py-40 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-pink-500/5 to-white">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl font-bold text-pink-500 mb-4">About E-TAAS ang Pinay MSMEs</h1>
           <p className="text-gray-700 max-w-xl mx-auto">

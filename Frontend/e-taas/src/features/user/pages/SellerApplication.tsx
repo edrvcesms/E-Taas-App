@@ -43,7 +43,7 @@ export const SellerApplication = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="min-h-screen bg-gray-50 pb-8 py-30">
       <div className="max-w-7xl mx-auto px-4 mt-10">
         {/* Welcome Card */}
         <div className="bg-linear-to-br from-pink-500 to-pink-600 rounded-2xl p-6 mb-6 text-white shadow-lg">

@@ -13,7 +13,7 @@ export const Profile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-pink-500/5 to-white p-8">
+    <div className="min-h-screen bg-linear-to-br from-pink-500/5 to-white py-30">
       <div className="max-w-7xl mx-auto flex gap-6">
         {/* Left Sidebar */}
         <div className="w-1/3 bg-white rounded-3xl shadow-sm p-8 space-y-6">

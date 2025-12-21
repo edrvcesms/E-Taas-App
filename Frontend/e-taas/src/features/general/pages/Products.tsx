@@ -29,7 +29,7 @@ export const ProductsPage: React.FC = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4 py-40">
       <h1 className="text-4xl font-bold text-center mb-8 text-pink-500">Our Products</h1>
       <div className="max-w-7xl mx-auto flex flex-wrap gap-10 justify-start " >
         {products && products.length > 0 ? (
