@@ -1,5 +1,5 @@
 import { useCurrentUser } from "../../../store/currentUserStore";
-import { useSwitchRole } from "../../../hooks/useSwitchRole";
+import { useSwitchRole } from "../../../hooks/general/useSwitchRole";
 import { useNavigate } from "react-router-dom";
 import { ConfirmationModal } from "../../general/components/ConfirmationModal";
 import { useState } from "react";

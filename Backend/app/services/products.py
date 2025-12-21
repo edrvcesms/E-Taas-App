@@ -31,7 +31,7 @@ async def get_all_products(db: AsyncSession):
 
 async def get_products_by_seller(db: AsyncSession, seller_id: int):
     try:
-        result = await db.execute(select(Product).options(selectinload(Product.variants)).options(selectinload(Product.images)).options(selectinload(Product.category)).where(Product.seller_id == seller_id))
+        result = await db.execute(select(Product).options(selectinload(Product.variants)).options(selectinload(Product.images)).options(selectinload(Product.category)).options(selectinload(Product.seller)).where(Product.seller_id == seller_id))
         products = result.scalars().all()
         logger.info(f"Retrieved products for seller_id {seller_id}: {products}")
         return products

@@ -1,5 +1,5 @@
-import { switchUserRole } from "../services/user/SwitchRole";
-import { useCurrentUser } from "../store/currentUserStore";
+import { switchUserRole } from "../../services/user/SwitchRole";
+import { useCurrentUser } from "../../store/currentUserStore";
 import { useState } from "react";
 
 export const useSwitchRole = () => {

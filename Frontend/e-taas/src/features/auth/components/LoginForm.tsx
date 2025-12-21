@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { LoginData } from "../../../types/auth/Login";
-import { useForm } from "../../../hooks/useForm";
+import { useForm } from "../../../hooks/general/useForm";
 import { useCurrentUser } from "../../../store/currentUserStore";
 import { loginUser } from "../../../services/auth/LoginService";
 import { useMyContext } from "../../../context/MyContext";

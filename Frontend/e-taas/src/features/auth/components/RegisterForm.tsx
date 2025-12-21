@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { registerUser } from "../../../services/auth/RegisterService";
 import type { RegisterData } from "../../../types/auth/Register";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useForm } from "../../../hooks/useForm";
+import { useForm } from "../../../hooks/general/useForm";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "../../../store/currentUserStore";
 import { useMyContext } from "../../../context/MyContext";

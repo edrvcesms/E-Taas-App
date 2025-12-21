@@ -2,7 +2,7 @@ import type { SellerApplicationData } from "../../../types/seller/Application";
 import { submitSellerApplication } from "../../../services/seller/Application";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "../../../hooks/useForm";
+import { useForm } from "../../../hooks/general/useForm";
 import { useCurrentUser } from "../../../store/currentUserStore";
 import { User, Mail, Phone, Building2, Store, MapPin, Home } from "lucide-react";
 

@@ -1,5 +1,5 @@
 import { resetPassword } from "../../../services/auth/ResetPassword";
-import { useForm } from "../../../hooks/useForm";
+import { useForm } from "../../../hooks/general/useForm";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import type { PasswordResetData } from "../../../types/auth/ResetPassword";

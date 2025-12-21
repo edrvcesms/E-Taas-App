@@ -1,16 +1,10 @@
 import { useState } from 'react';
 import { ArrowLeft, Check, Share2, Heart, ShoppingCart, Store, Shield, Truck, Package, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useProductDetails } from '../../../hooks/useProduct';
+import { useProductDetails } from '../../../hooks/products/useProduct';
+import { LoadingIndicator } from '../../general/components/LoadingIndicator';
 
-const LoadingIndicator = ({ size = 40 }) => (
-  <div
-    className="border-4 border-gray-200 border-t-pink-500 rounded-full animate-spin"
-    style={{ width: size, height: size }}
-  />
-);
-
-export default function ProductDetails() {
+export const ProductDetails: React.FC = () => {
   const { productId } = useParams();
   const { productDetailsQuery } = useProductDetails(Number(productId));
   const { data, isLoading, isError } = productDetailsQuery;
@@ -72,7 +66,7 @@ export default function ProductDetails() {
   const inStock = product.stock > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50  py-40">
+    <div className="min-h-screen bg-gray-50 pt-20 pb-10">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-6">
@@ -83,7 +77,7 @@ export default function ProductDetails() {
               <img
                 src={product.images[currentImageIndex]?.image_url || 'https://placehold.co/600x400/f5f5f5/999999?text=Image+Unavailable&font=inter'}
                 alt={`${product.product_name} - Image ${currentImageIndex + 1}`}
-                className="w-full max-h-72 object-contain"
+                className="w-full max-h-80 object-contain rounded-2xl"
               />
 
               {/* Navigation Buttons */}
@@ -302,3 +296,4 @@ export default function ProductDetails() {
     </div>
   );
 }
+export default ProductDetails;

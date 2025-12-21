@@ -1,5 +1,5 @@
 import { verifyPasswordResetOtp } from '../../../services/auth/ResetPassword';
-import { useForm } from '../../../hooks/useForm';
+import { useForm } from '../../../hooks/general/useForm';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 

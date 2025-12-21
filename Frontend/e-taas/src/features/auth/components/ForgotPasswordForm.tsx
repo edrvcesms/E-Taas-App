@@ -1,4 +1,4 @@
-import { useForm } from "../../../hooks/useForm";
+import { useForm } from "../../../hooks/general/useForm";
 import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../../../services/auth/ResetPassword";
 

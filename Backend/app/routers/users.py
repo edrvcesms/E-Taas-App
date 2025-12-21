@@ -20,10 +20,15 @@ router = APIRouter()
 @limiter.limit("20/minute")
 async def get_current_user(
     request: Request,
-    token: str,
     db: AsyncSession = Depends(get_db)
 ):
-    """Get current user details using access token."""
+    
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization token is missing"
+        )
     user = await get_current_user_by_token(db, token)
     if not user:
         raise HTTPException(

@@ -6,23 +6,24 @@ export const createApiInstance = (baseUrl: string, withCredentials?: boolean | u
     baseURL: baseUrl,
     withCredentials: withCredentials
   });
-  
+
   if (withCredentials) {
     instance.interceptors.request.use(async (config) => {
       config.withCredentials = true;
       return config;
-    }); 
+    });
 
     instance.interceptors.response.use(response => response, async (error) => {
-      if (error.response && error.response.status === 401) {
+      if (error.response.status === 401 && !error.config._retry) {
         try {
           const refreshed = await refreshToken();
-          if (refreshed.statusCode !== 200) {
-            return Promise.reject(error);
+          if (refreshed) {
+            const originalRequest = error.config;
+            originalRequest._retry = true;
+
+            return instance(originalRequest);
           }
-          const originalRequest = error.config;
-          originalRequest._retry = true;
-          return instance(originalRequest);
+          return Promise.reject(error);
         } catch (refreshError) {
           return Promise.reject(refreshError);
         }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react';
-import { useForm } from '../../../hooks/useForm';
+import { useForm } from '../../../hooks/general/useForm';
 import type { UpdateUserData } from '../../../types/user/User';
 import { useCurrentUser } from '../../../store/currentUserStore';
 import { updateUserDetails } from '../../../services/user/UserDetails';

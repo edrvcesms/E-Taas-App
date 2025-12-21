@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { queryClient } from '../main';
 import { useCurrentUser } from '../store/currentUserStore';
 import { User } from "lucide-react"
+import { ConfirmationModal } from '../features/general/components/ConfirmationModal';
 
 
 export function AccountCircleIcon() {
@@ -16,7 +17,7 @@ export const LoginBtn = () => {
   return (
     <button
       onClick={() => navigate("/login")}
-      className="px-4 py-2 bg-pink-500 text-white rounded-full hover:opacity-90 transition-opacity cursor-pointer font-bold"
+      className="px-4 py-2 bg-pink-500 text-white rounded-xl hover:opacity-90 transition-opacity cursor-pointer font-bold"
     >
       Login
     </button>
@@ -30,6 +31,12 @@ export const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const clearCurrentUser = useCurrentUser((state) => state.clearCurrentUser);
   const navigate = useNavigate();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const toggleLogoutModal = () => {
+    setIsLogoutModalOpen(!isLogoutModalOpen);
+  }
+
 
   const handleLogout = async () => {
     try {
@@ -39,6 +46,7 @@ export const Navbar = () => {
       navigate("/login");
       setIsMenuOpen(false);
       setIsProfileOpen(false);
+      setIsLogoutModalOpen(false);
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -99,7 +107,7 @@ export const Navbar = () => {
                     Profile
                   </button>
                   <button
-                    onClick={handleLogout}
+                    onClick={toggleLogoutModal}
                     className="px-4 py-2 text-left hover:bg-gray-100 transition-colors"
                   >
                     Logout
@@ -107,6 +115,13 @@ export const Navbar = () => {
                 </div>
               )}
             </div>
+            <ConfirmationModal
+              open={isLogoutModalOpen}
+              onCancel={toggleLogoutModal}
+              onConfirm={handleLogout}
+              title="Confirm Logout"
+              description="Are you sure you want to logout?"
+            />
           </div>
 
           {/* Mobile menu button */}
