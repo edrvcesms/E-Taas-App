@@ -12,6 +12,7 @@ from app.models.orders import Order
 from app.models.services import Service
 from app.services.notification import create_new_notification
 from app.schemas.sellers import SwitchRoleRequest
+from app.models.users import User
 
 async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: int) -> Seller:
     try:
@@ -39,7 +40,18 @@ async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: 
             is_verified=True,
             is_seller_mode=False
         )
+
+        result = await db.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
         
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found."
+            )
+        
+        user.is_seller = True
+        db.add(user)
         db.add(new_seller)
         await db.commit()
         await db.refresh(new_seller)

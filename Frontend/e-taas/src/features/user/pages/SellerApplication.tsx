@@ -14,9 +14,7 @@ export const SellerApplication = () => {
     business_address: "",
     business_contact: "",
     display_name: "",
-    owner_address: "",
-    is_verified: false,
-    is_seller_mode: false,
+    owner_address: ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,8 +28,8 @@ export const SellerApplication = () => {
     setIsSubmitting(true);
     setError(null);
     try {
-      await submitSellerApplication(values);
-      updateCurrentUser({ is_seller: true, seller: values });
+      const application = await submitSellerApplication(values);
+      updateCurrentUser({ is_seller: true, seller: application });
       navigate("/profile");
     } catch (err: any) {
       if (err.response && err.response.data) {

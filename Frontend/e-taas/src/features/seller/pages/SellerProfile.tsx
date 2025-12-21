@@ -12,7 +12,7 @@ export const SellerProfile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-white p-8">
+    <div className="min-h-screen bg-linear-to-br from-pink-50 to-white p-8">
       <div className="max-w-7xl mx-auto flex gap-6">
         {/* Left Sidebar */}
         <div className="w-1/3 bg-white rounded-3xl shadow-sm p-8 space-y-6">
@@ -112,7 +112,7 @@ export const SellerProfile: React.FC = () => {
         <div className="flex-1">
           <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
             {/* Cover Photo */}
-            <div className="relative h-48 bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+            <div className="relative h-48 bg-linear-to-br from-pink-500 to-pink-600 flex items-center justify-center">
               <span className="text-white text-sm">Cover Photo</span>
             </div>
 
