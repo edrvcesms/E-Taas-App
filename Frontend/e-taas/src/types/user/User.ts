@@ -1,3 +1,6 @@
+import type { SellerDetails } from "../seller/Seller";
+
+
 export interface User {
   id: number;
   username: string;
@@ -9,6 +12,7 @@ export interface User {
   contact_number?: string;
   is_seller: boolean;
   is_admin: boolean;
+  seller?: SellerDetails;
 }
 
 export interface UpdateUserData {

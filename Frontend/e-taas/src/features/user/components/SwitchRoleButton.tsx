@@ -41,7 +41,7 @@ export const SwitchRoleButton: React.FC = () => {
           onClick={toggleModal}
           className={`w-full border rounded-lg py-3 px-4 flex items-center justify-between transition cursor-pointer ${isSellerMode
               ? "border-pink-500 text-pink-500 bg-pink-50 hover:bg-pink-100"
-              : "border-pink-200 text-white bg-pink-500 hover:bg-pink-500/90"
+              : "border-white-500 text-white bg-pink-500 hover:bg-pink-500/90"
             }`}
         >
           <div className="flex items-center gap-2">

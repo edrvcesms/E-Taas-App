@@ -33,9 +33,21 @@ export const useCurrentUser = create<CurrentUserState>((set) => ({
     set((state) => {
       if (!state.currentUser) return state;
 
-      const updatedUser = { ...state.currentUser, ...userData };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
+      let updatedUser: User;
+      if (userData.seller) {
+        updatedUser = {
+          ...state.currentUser,
+          ...userData,
+          seller: {
+            ...state.currentUser.seller,
+            ...userData.seller,
+          }
+        };
+      } else {
+        updatedUser = { ...state.currentUser, ...userData };
+      }
 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
       return { currentUser: updatedUser };
     });
   },

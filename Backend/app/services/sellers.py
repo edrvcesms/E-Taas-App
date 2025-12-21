@@ -35,7 +35,9 @@ async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: 
             business_address=seller_data.business_address,
             business_contact=seller_data.business_contact,
             display_name=seller_data.display_name,
-            owner_address=seller_data.owner_address
+            owner_address=seller_data.owner_address,
+            is_verified=True,
+            is_seller_mode=False
         )
         
         db.add(new_seller)
@@ -43,14 +45,7 @@ async def become_a_seller(db: AsyncSession, seller_data: SellerCreate, user_id: 
         await db.refresh(new_seller)
 
 
-        return JSONResponse(
-            status_code = status.HTTP_201_CREATED,
-            content={
-                "message": "Seller application successful",
-                "seller_id": new_seller.id,
-                "is_verified": new_seller.is_verified
-            }
-        )
+        return new_seller
 
     except HTTPException:
         raise

@@ -218,7 +218,7 @@ export default function ProductDetails() {
 
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-linear-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center shrink-0">
-                  <span className="text-white text-lg font-bold">{data.product.seller.business_name.charAt(0).toUpperCase()}</span>
+                  <span className="text-white text-lg font-bold">{data.product.seller.business_name?.charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 text-sm">{data.product.seller.business_name}</h4>

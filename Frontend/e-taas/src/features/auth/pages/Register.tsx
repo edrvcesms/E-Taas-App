@@ -3,10 +3,8 @@ import { RegisterForm } from "../components/RegisterForm";
 export const Register: React.FC = () => {
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-pink-50 via-white to-pink-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+      <div className="min-h-screen flex items-start justify-center bg-gray-50 md:p-12 p-4 pt-12">
         <RegisterForm />
       </div>
-    </div>
   );
 }

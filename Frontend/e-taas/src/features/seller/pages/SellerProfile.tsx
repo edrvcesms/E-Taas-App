@@ -1,6 +1,5 @@
 import { useCurrentUser } from "../../../store/currentUserStore";
 import { LoadingIndicator } from "../../general/components/LoadingIndicator";
-import UserDetailsForm from "../../user/components/UserDetailsForm";
 import { Button } from "../../general/components/Buttons";
 import { SwitchRoleButton } from "../../user/components/SwitchRoleButton";
 
@@ -13,7 +12,7 @@ export const SellerProfile: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-pink-500/5 to-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-white p-8">
       <div className="max-w-7xl mx-auto flex gap-6">
         {/* Left Sidebar */}
         <div className="w-1/3 bg-white rounded-3xl shadow-sm p-8 space-y-6">
@@ -30,7 +29,7 @@ export const SellerProfile: React.FC = () => {
 
           <SwitchRoleButton />
 
-          {/* My Purchases Section */}
+          {/* Business Management Section */}
           <div className="space-y-6">
             <h3 className="font-semibold text-gray-900 mb-4">Business Management</h3>
 
@@ -75,8 +74,8 @@ export const SellerProfile: React.FC = () => {
             />
           </div>
 
-          {/* Account Stats */}
-          <div className="pt-6 border-t border-gray-100">
+          {/* Analytics & Insights */}
+          <div className="pt-6 border-t border-gray-100 space-y-6">
             <h3 className="font-semibold text-gray-900 mb-4">Analytics & Insights</h3>
             <Button 
               onClick={() => {}}
@@ -109,87 +108,95 @@ export const SellerProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Content Area */}
-        <div className="flex-1 space-y-6">
-          <UserDetailsForm />
-          
-          {/* Recent Activity */}
-          <div className="bg-white rounded-3xl shadow-sm p-8">
-            <h3 className="font-semibold text-gray-900 mb-6">Recent Activity</h3>
-            <div className="space-y-4">
-              <div className="flex items-start gap-4 pb-4 border-b border-gray-100">
-                <div className="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        {/* Right Content Area - Shop Profile Card */}
+        <div className="flex-1">
+          <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+            {/* Cover Photo */}
+            <div className="relative h-48 bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+              <span className="text-white text-sm">Cover Photo</span>
+            </div>
+
+            {/* Shop Profile Content */}
+            <div className="p-8">
+              {/* Shop Avatar & Edit Button */}
+              <div className="flex items-start justify-between mb-6">
+                <div className="relative -mt-20">
+                  <div className="w-28 h-28 rounded-full bg-pink-500 flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-lg">
+                    {currentUser?.username.charAt(0).toUpperCase()}
+                  </div>
+                  <button className="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition">
+                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                </div>
+
+                <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">Order Placed</div>
-                  <div className="text-sm text-gray-500 mt-1">Your order #12345 has been confirmed</div>
-                  <div className="text-xs text-gray-400 mt-2">2 hours ago</div>
-                </div>
+                  <span className="text-sm font-medium text-gray-700">Edit Shop</span>
+                </button>
               </div>
-              
-              <div className="flex items-start gap-4 pb-4 border-b border-gray-100">
-                <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">Delivery Complete</div>
-                  <div className="text-sm text-gray-500 mt-1">Order #12340 has been delivered</div>
-                  <div className="text-xs text-gray-400 mt-2">Yesterday</div>
-                </div>
+
+              {/* Shop Name */}
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {currentUser?.seller?.display_name}
+              </h2>
+
+              {/* Rating */}
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span className="text-lg font-semibold text-gray-900">{currentUser?.seller?.ratings}</span>
               </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+
+              {/* Location */}
+              <div className="flex items-center gap-2 text-gray-600 mb-3">
+                <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm">{currentUser?.seller?.business_address}</span>
+              </div>
+
+              {/* Description */}
+              <p className="text-gray-600 text-sm mb-6">
+                Welcome to {currentUser?.seller?.display_name}'s Store! We offer a variety of products to meet your needs. Browse our collection and enjoy a seamless shopping experience.
+              </p>
+
+              {/* Contact Information */}
+              <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
+                  <span className="text-sm text-gray-600">{currentUser?.seller?.business_contact}</span>
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">New Voucher</div>
-                  <div className="text-sm text-gray-500 mt-1">You received a 20% off voucher</div>
-                  <div className="text-xs text-gray-400 mt-2">3 days ago</div>
+
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm text-gray-600">{currentUser?.email}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Saved Addresses */}
-          <div className="bg-white rounded-3xl shadow-sm p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-semibold text-gray-900">Saved Addresses</h3>
-              <button className="text-sm text-pink-500 hover:text-pink-600">+ Add New</button>
+          {/* Shop Statistics */}
+          <div className="mt-6 grid grid-cols-3 gap-4">
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="text-3xl font-bold text-gray-900 mb-1">0</div>
+              <div className="text-sm text-gray-500">Total Products</div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="border border-gray-200 rounded-lg p-4 hover:border-pink-300 transition cursor-pointer">
-                <div className="flex items-start justify-between mb-2">
-                  <span className="text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded">Default</span>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Home</div>
-                <div className="text-xs text-gray-500">123 Main St, Apt 4B, New York, NY 10001</div>
-              </div>
-              
-              <div className="border border-gray-200 rounded-lg p-4 hover:border-pink-300 transition cursor-pointer">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="h-5"></div>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="text-sm font-medium text-gray-900 mb-1">Office</div>
-                <div className="text-xs text-gray-500">456 Business Ave, Floor 12, New York, NY 10002</div>
-              </div>
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="text-3xl font-bold text-gray-900 mb-1">0</div>
+              <div className="text-sm text-gray-500">Total Sales</div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="text-3xl font-bold text-gray-900 mb-1">0</div>
+              <div className="text-sm text-gray-500">Active Orders</div>
             </div>
           </div>
         </div>

@@ -42,7 +42,7 @@ export const RegisterForm: React.FC = () => {
 
   return (
     <>
-      <div className="w-full lg:w-full flex items-center justify-center p-8">
+      <div className="w-full lg:w-full flex items-center justify-center">
         <div className="w-full max-w-4xl">
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="mb-8">

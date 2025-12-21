@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "../../../hooks/useForm";
 import { useCurrentUser } from "../../../store/currentUserStore";
 import { User, Mail, Phone, Building2, Store, MapPin, Home } from "lucide-react";
-import { switchUserRole } from "../../../services/user/SwitchRole";
 
 export const SellerApplication = () => {
   const navigate = useNavigate();
@@ -16,11 +15,14 @@ export const SellerApplication = () => {
     business_contact: "",
     display_name: "",
     owner_address: "",
+    is_verified: false,
+    is_seller_mode: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<SellerApplicationData | null>(null);
   const currentUser = useCurrentUser((state) => state.currentUser);
+  const updateCurrentUser = useCurrentUser((state) => state.updateCurrentUser);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,6 +31,7 @@ export const SellerApplication = () => {
     setError(null);
     try {
       await submitSellerApplication(values);
+      updateCurrentUser({ is_seller: true, seller: values });
       navigate("/profile");
     } catch (err: any) {
       if (err.response && err.response.data) {

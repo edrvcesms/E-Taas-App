@@ -212,7 +212,7 @@ async def login_user(db: AsyncSession, user_login_data):
                     "contact_number": user.contact_number,
                     "is_admin": user.is_admin,
                     "is_seller": user.is_seller,
-                    "seller_data": {
+                    "seller": {
                         "id": user.seller.id if user.seller else None,
                         "business_name": user.seller.business_name if user.seller else None,
                         "is_verified": user.seller.is_verified if user.seller else None,

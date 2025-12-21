@@ -36,6 +36,7 @@ async def apply_as_seller(
     return await become_a_seller(db, seller_data, current_user.id)
 
 @router.put("/switch-role", status_code=status.HTTP_200_OK)
+@limiter.limit("50/minute")
 async def switch_seller_role(
     request: Request,
     switch_role_request: SwitchRoleRequest,

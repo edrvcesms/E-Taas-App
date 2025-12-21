@@ -16,7 +16,10 @@ export const createApiInstance = (baseUrl: string, withCredentials?: boolean | u
     instance.interceptors.response.use(response => response, async (error) => {
       if (error.response && error.response.status === 401) {
         try {
-          await refreshToken();
+          const refreshed = await refreshToken();
+          if (refreshed.statusCode !== 200) {
+            return Promise.reject(error);
+          }
           const originalRequest = error.config;
           originalRequest._retry = true;
           return instance(originalRequest);
