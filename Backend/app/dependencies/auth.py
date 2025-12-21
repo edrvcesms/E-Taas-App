@@ -18,14 +18,18 @@ async def current_user(
     db: AsyncSession = Depends(get_db)
 ) -> User:
     token = request.cookies.get("access_token")
+    header_token = request.headers.get("Authorization")
+    if header_token and header_token.startswith("Bearer "):
+        token_from_header = header_token.split(" ")[1]
+
     
-    if not token:
+    if not token or (header_token and not token_from_header): 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing access token")
 
     try:
-        jwt_payload = decode_token(token, settings.SECRET_KEY, [settings.ALGORITHM])
+        jwt_payload = decode_token(token_from_header if header_token else token, settings.SECRET_KEY, [settings.ALGORITHM])
 
-        if jwt_payload and is_token_valid(token, settings.SECRET_KEY, [settings.ALGORITHM]):
+        if jwt_payload and is_token_valid(token_from_header if header_token else token, settings.SECRET_KEY, [settings.ALGORITHM]):
             
             user_id = jwt_payload.get("user_id")
             if not user_id:

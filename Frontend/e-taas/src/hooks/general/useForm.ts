@@ -1,9 +1,5 @@
 import { useState } from "react";
 
-type NestedKeys<T> = {
-  [K in keyof T]: T[K] extends object ? `${K & string}.${keyof T[K] & string}` : K & string
-}[keyof T];
-
 export function useForm<T>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
 

@@ -22,19 +22,23 @@ async def get_current_user(
     request: Request,
     db: AsyncSession = Depends(get_db)
 ):
-    
-    token = request.headers.get("Authorization")
-    if not token:
+    auth_header = request.headers.get("Authorization")
+
+    if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization token is missing"
+            detail="Invalid or missing Authorization header"
         )
+
+    token = auth_header.split(" ")[1]
+
     user = await get_current_user_by_token(db, token)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+
     return user
 
 @router.get("/details", response_model=UserBase)
