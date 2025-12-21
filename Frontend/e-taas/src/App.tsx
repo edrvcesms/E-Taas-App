@@ -9,7 +9,7 @@ import { Login } from "./features/auth/pages/Login";
 import { Home } from "./features/general/pages/Home";
 import { About } from "./features/general/pages/About";
 import { ProductsPage } from "./features/general/pages/Products";
-import { Profile } from "./features/user/pages/Profile";
+import { Profile } from "./features/user/pages/UserProfile";
 import { LoadingIndicator } from "./features/general/components/LoadingIndicator";
 import Services from "./features/general/pages/Services";
 import { MyContextProvider } from "./context/MyContext";

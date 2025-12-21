@@ -4,6 +4,7 @@ from app.services.sellers import become_a_seller, get_shop_details, get_all_orde
 from app.services.products import get_products_by_seller
 from app.dependencies.database import get_db
 from app.dependencies.auth import current_user
+from app.services.service import get_services_by_seller
 from app.schemas.sellers import SellerCreate, SwitchRoleRequest
 from app.dependencies.limiter import limiter
 from app.models.users import User
@@ -129,6 +130,21 @@ async def get_my_products(
     
     products = await get_products_by_seller(db, current_user.seller.id)
     return products
+
+@router.get("/my-services", status_code=status.HTTP_200_OK)
+async def get_my_services(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(current_user)
+):
+    if not current_user or not current_user.is_seller:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only sellers can access their services."
+        )
+    
+    services = await get_services_by_seller(db, current_user.seller.id)
+    return services
 
 @router.get("/orders", status_code=status.HTTP_200_OK)
 async def get_seller_orders(

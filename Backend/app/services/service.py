@@ -4,13 +4,27 @@ from sqlalchemy.future import select
 from app.models.services import Service, ServiceImage
 from app.schemas.service import ServiceCreate
 from app.utils.cloudinary import upload_image_to_cloudinary
+from sqlalchemy.orm import selectinload
+from app.utils.logger import logger
 
 async def get_all_services(db: AsyncSession):
     try:
         result = await db.execute(select(Service))
         services = result.scalars().all()
+        logger.info(f"Retrieved all services: {services}")
         return services
     
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    
+async def get_services_by_seller(db: AsyncSession, seller_id: int):
+    try:
+        result = await db.execute(select(Service).options(selectinload(Service.images)).where(Service.seller_id == seller_id))
+        services = result.scalars().all()
+        logger.info(f"Retrieved services for seller_id {seller_id}: {services}")
+        return services
     except HTTPException:
         raise
     except Exception as e:
