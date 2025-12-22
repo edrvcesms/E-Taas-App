@@ -13,13 +13,10 @@ class ProductCreate(ProductBase):
     pass
 
 class VariantBase(BaseModel):
-    stock: Optional[int] = 0
-    price: Optional[float] = 0.0
+    stock: int
+    price: float
 
 class VariantCreate(VariantBase):
-    pass
-
-class VariantUpdate(VariantBase):
     pass
 
 class UpdateProduct(BaseModel):

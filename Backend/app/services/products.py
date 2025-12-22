@@ -3,12 +3,13 @@ from fastapi import HTTPException, status, UploadFile
 from fastapi.responses import JSONResponse
 from app.models.products import Product, VariantAttribute, VariantCategory, ProductVariant, variant_attribute_values, ProductImage
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from app.schemas.product import ProductCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct, VariantUpdate
+from sqlalchemy import select, update
+from app.schemas.product import ProductCreate, VariantCreate, VariantCategoryCreate, UpdateVariantCategory, UpdateProduct
 from collections import defaultdict
 from itertools import product
 from sqlalchemy.orm import selectinload
-from app.utils.cloudinary import upload_image_to_cloudinary, upload_single_image_to_cloudinary
+import json
+from app.utils.cloudinary import upload_image_to_cloudinary
 from app.utils.logger import logger
 
 async def get_all_products(db: AsyncSession):
@@ -276,66 +277,68 @@ async def add_product_variants(db: AsyncSession, variants: Optional[List[Variant
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while adding product variants."
         )
-    
-async def add_image_to_single_variant(db: AsyncSession, variant_id: int, image: UploadFile):
+
+
+async def update_variants(db: AsyncSession, files, variant_ids, variant_data):
     try:
-        result = await db.execute(select(ProductVariant).where(ProductVariant.id == variant_id))
-        variant = result.scalar_one_or_none()
-        if not variant:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Product variant not found."
+        variant_ids_list = json.loads(variant_ids)
+        variant_data_list = json.loads(variant_data)
+
+        file_map = {}
+        for file, variant_id in zip(files, variant_ids_list):
+            file_map[variant_id] = file
+        
+        logger.info(f"Updating variants with IDs: {variant_ids_list}")
+
+        results = []
+
+        for variant_info in variant_data_list:
+            variant_id = variant_info["variant_id"]
+
+            query = await db.execute(select(ProductVariant).where(ProductVariant.id == variant_id))
+            variant = query.scalar_one_or_none()
+            if not variant:
+                continue
+
+            new_image_url = variant.image_url
+            if variant_info.get("remove_image"):
+
+                new_image_url = ""
+                # implement later to delete from cloudinary
+                logger.info(f"Removed image for variant_id {variant_id}")
+
+            elif variant_id in file_map:
+
+                upload_result = await upload_image_to_cloudinary([file_map[variant_id]], folder="product-variants")
+                new_image_url = upload_result[0]["secure_url"]
+                logger.info(f"Updated image for variant_id {variant_id}: {new_image_url}")
+
+            await db.execute(
+                update(ProductVariant)
+                .where(ProductVariant.id == variant_id)
+                .values(
+                    price=variant_info.get("price", variant.price),
+                    stock=variant_info.get("stock", variant.stock),
+                    image_url=new_image_url
+                )
             )
-        
-        upload_result = await upload_single_image_to_cloudinary(image, folder="variant_images")
-        variant.image_url = upload_result["secure_url"]
-        db.add(variant)
+            logger.info(f"Updated variant_id {variant_id} with price: {variant_info.get('price', variant.price)}, stock: {variant_info.get('stock', variant.stock)}")
+
+            results.append({
+                "variant_id": variant_id,
+                "price": variant_info.get("price", variant.price),
+                "stock": variant_info.get("stock", variant.stock),
+                "image_url": new_image_url
+            })
+
         await db.commit()
-        await db.refresh(variant)
-        logger.info(f"Added image to variant_id {variant_id}: {variant.image_url}")
-        
-        return variant
+        return {"message": f"Updated {len(results)} variants", "results": results}
     
-    except HTTPException:
-        raise
 
     except Exception as e:
-        logger.error(f"Error adding image to variant_id {variant_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while adding image to the product variant."
-        )
-
-async def update_variant_service(db: AsyncSession, variant_update: VariantUpdate, variant_id: int):
-
-    try:
-        result = await db.execute(select(ProductVariant).where(ProductVariant.id == variant_id))
-        variant = result.scalar_one_or_none()
-        if not variant:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Product variant not found."
-            )
-        
-        for var, value in vars(variant_update).items():
-            if value is not None:
-                setattr(variant, var, value)
-        
-        db.add(variant)
-        await db.commit()
-        await db.refresh(variant)
-        
-        return variant
-    
-    except HTTPException:
-        raise
-
-    except Exception as e:
-        logger.error(f"Error updating variant_id {variant_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred while updating the product variant."
-        )
+        logger.error(f"Error in bulk updating variants: {e}")
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 async def update_variant_category_service(db: AsyncSession, category_update: UpdateVariantCategory):
     try:
@@ -346,7 +349,6 @@ async def update_variant_category_service(db: AsyncSession, category_update: Upd
         if not category:
             raise HTTPException(status_code=404, detail="Variant category not found.")
 
-        # Store original state before any changes
         original_attrs_result = await db.execute(
             select(VariantAttribute).where(VariantAttribute.category_id == category.id)
         )
