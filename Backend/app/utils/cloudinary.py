@@ -32,3 +32,7 @@ async def upload_single_image_to_cloudinary(file: UploadFile, folder: str):
         "secure_url": result["secure_url"],
         "public_id": result["public_id"]
     }
+
+async def delete_image_from_cloudinary(public_id: str):
+    result = cloudinary.uploader.destroy(public_id)
+    return result

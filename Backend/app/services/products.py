@@ -9,7 +9,7 @@ from collections import defaultdict
 from itertools import product
 from sqlalchemy.orm import selectinload
 import json
-from app.utils.cloudinary import upload_image_to_cloudinary
+from app.utils.cloudinary import upload_image_to_cloudinary, delete_image_from_cloudinary
 from app.utils.logger import logger
 
 async def get_all_products(db: AsyncSession):
@@ -304,7 +304,10 @@ async def update_variants(db: AsyncSession, files, variant_ids, variant_data):
             if variant_info.get("remove_image"):
 
                 new_image_url = ""
-                # implement later to delete from cloudinary
+                if variant.image_url:
+                    public_id = variant.image_url.split("/")[-1].split(".")[0]
+                    await delete_image_from_cloudinary(public_id)
+                    logger.info(f"Deleted image from Cloudinary for variant_id {variant_id}")
                 logger.info(f"Removed image for variant_id {variant_id}")
 
             elif variant_id in file_map:
