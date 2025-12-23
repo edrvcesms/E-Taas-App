@@ -1,7 +1,6 @@
 import { useCurrentUser } from "../../../store/currentUserStore";
 import { AllProducts } from "../components/AllProducts";
-import ManageProductPage from "../../seller/pages/ManageProduct";
-
+import { ManageProductPage } from "../../seller/pages/ProductPage";
 export const ProductsPage: React.FC = () => {
   const { currentUser } = useCurrentUser();
 

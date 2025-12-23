@@ -9,6 +9,7 @@ from app.dependencies.database import get_db
 from app.dependencies.auth import current_user
 from app.dependencies.limiter import limiter
 from app.schemas.product import ProductFullCreate, ProductFullUpdate
+from app.services.products import get_all_product_categories
 
 router = APIRouter()
 
@@ -30,6 +31,13 @@ async def get_product(
 ):
     return await get_product_by_id(db, product_id)
 
+@router.get("/categories/all", status_code=status.HTTP_200_OK)
+@limiter.limit("30/minute")
+async def get_product_categories(
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+):
+    return await get_all_product_categories(db)
 
 @router.put("/update-variants", status_code=200)
 async def bulk_update_variants(

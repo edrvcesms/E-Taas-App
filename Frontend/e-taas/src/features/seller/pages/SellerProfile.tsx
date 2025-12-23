@@ -2,10 +2,12 @@ import { useCurrentUser } from "../../../store/currentUserStore";
 import { LoadingIndicator } from "../../general/components/LoadingIndicator";
 import { Button } from "../../general/components/Buttons";
 import { SwitchRoleButton } from "../../user/components/SwitchRoleButton";
+import { useProductStore } from "../../../store/useProductStore";
 
 export const SellerProfile: React.FC = () => {
   const currentUser = useCurrentUser((state) => state.currentUser);
   const isLoading = useCurrentUser((state) => state.isLoading);
+  const products = useProductStore((state) => state.products);
 
   if (isLoading && !currentUser) {
     return <LoadingIndicator />;
@@ -187,7 +189,7 @@ export const SellerProfile: React.FC = () => {
           {/* Shop Statistics */}
           <div className="mt-6 grid grid-cols-3 gap-4">
             <div className="bg-white rounded-2xl shadow-sm p-6">
-              <div className="text-3xl font-bold text-gray-900 mb-1">0</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{products?.length}</div>
               <div className="text-sm text-gray-500">Total Products</div>
             </div>
             <div className="bg-white rounded-2xl shadow-sm p-6">

@@ -14,7 +14,7 @@ const variantList: VariantData[] = [
   { variant_id: 4, price: 200, stock: 20 }
 ]
 
-const ManageProductPage = () => {
+const ManageProduct = () => {
   const [variantFiles, setVariantFiles] = useState<Record<number, File[]>>({})
 
   function handleFileChange(variantId: number, e: React.ChangeEvent<HTMLInputElement>) {
@@ -109,4 +109,4 @@ const ManageProductPage = () => {
   )
 }
 
-export default ManageProductPage
+export default ManageProduct

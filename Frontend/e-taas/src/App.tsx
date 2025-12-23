@@ -21,7 +21,7 @@ import { Navbar } from "./layouts/Navbar";
 import Footer from "./layouts/Footer";
 import ProductDetails from "./features/general/pages/ProductDetails";
 import { SellerApplication } from "./features/user/pages/SellerApplication";
-import ManageProductPage from "./features/seller/pages/ManageProduct";
+import { AddProduct } from "./features/seller/components/AddProduct";
 
 function App() {
   const isLoading = useCurrentUser((state) => state.isLoading);
@@ -46,6 +46,7 @@ function App() {
         <Route element={<UserProtectedRoutes />}>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/seller-application" element={<SellerApplication />} />
+          <Route path="/add-product" element={<AddProduct />} />
         </Route>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductsPage />} />
@@ -61,9 +62,6 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
         </Route>
-
-        
-        <Route path="/manage-products" element={<ManageProductPage />} />
       </Routes>
       <Footer />
       

@@ -11,6 +11,25 @@ from sqlalchemy.orm import selectinload
 import json
 from app.utils.cloudinary import upload_image_to_cloudinary, delete_image_from_cloudinary
 from app.utils.logger import logger
+from app.models.category import ProductCategory
+
+
+async def get_all_product_categories(db: AsyncSession):
+    try:
+        result = await db.execute(select(ProductCategory))
+        categories = result.scalars().all()
+        logger.info(f"Retrieved all product categories: {categories}")
+        return categories
+    
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"Error retrieving all product categories: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while fetching product categories."
+        )
 
 async def get_all_products(db: AsyncSession):
     try: 

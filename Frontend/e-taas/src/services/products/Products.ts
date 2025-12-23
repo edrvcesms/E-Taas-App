@@ -21,3 +21,13 @@ export const getProductById = async (productId: number) => {
     throw error;
   }
 }
+
+export const getAllProductCategories = async () => {
+  try {
+    const res = await productApi.get("/categories/all");
+    return res.data;
+  } catch (error) {
+    console.error("Fetching product categories failed:", error);
+    throw error;
+  }
+}

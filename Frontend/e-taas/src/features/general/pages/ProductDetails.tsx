@@ -85,13 +85,13 @@ export const ProductDetails: React.FC = () => {
                 <>
                   <button
                     onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition cursor-pointer"
                   >
                     <ChevronLeft className="w-5 h-5 text-gray-800" />
                   </button>
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition cursor-pointer"
                   >
                     <ChevronRight className="w-5 h-5 text-gray-800" />
                   </button>
@@ -100,7 +100,7 @@ export const ProductDetails: React.FC = () => {
 
               {/* Image Counter */}
               {product.images.length > 1 && (
-                <div className="absolute top-4 left-4 bg-black/60 text-white px-3 py-1 rounded-full text-xs font-medium">
+                <div className="absolute bottom-4 left-4 bg-black/60 text-white px-3 py-1 rounded-full text-xs font-medium">
                   {currentImageIndex + 1} / {product.images.length}
                 </div>
               )}
